@@ -1,0 +1,14 @@
+{
+  "name": "hennig-common",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "autonumeric": "^4.6.0",
+    "jquery": "^3.5.1",
+    "vue": "^2.6.12",
+    "vue-notification": "^1.3.20"
+  }
+}
