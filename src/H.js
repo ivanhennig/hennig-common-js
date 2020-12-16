@@ -992,8 +992,14 @@ const H = new class {
                 $form_control.attr('placeholder', l_opts.placeholder)
             }
 
+            var l_maskinstance = null
             if (l_opts.mask) {
-                Inputmask(l_opts.mask).mask($form_control[0])
+                const clearMaskOnLostFocus = false
+                const keepStatic = true
+
+                l_maskinstance = Inputmask(l_opts.mask, {
+                    clearMaskOnLostFocus, keepStatic
+                }).mask($form_control[0])
             }
 
             if (l_opts.initialValue) {
@@ -1084,7 +1090,9 @@ const H = new class {
                 if (l_opts.readonly && l_name !== '_id') return
                 var $target = $(e.target)
                 if ($target.is($form_group)) {
-                    if (l_autonumeric) {
+                    if (l_maskinstance) {
+                        a_values[l_name] = l_maskinstance.unmaskedvalue()
+                    } else if (l_autonumeric) {
                         a_values[l_name] = l_autonumeric.get()
                     } else if ($form_control.is('.datetimepicker-input')) {
                         a_values[l_name] = $form_control.datetimepicker('viewDate').toISOString(true)
