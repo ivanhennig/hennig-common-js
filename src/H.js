@@ -2,11 +2,19 @@ import Vue from 'vue'
 import jQuery from 'jquery'
 import {showError, showInfo, showSuccess} from './notifications'
 import AutoNumeric from 'autonumeric'
+import Inputmask from 'inputmask'
 
-const ST_INTEGER = 'integer'
 const TYP_NUMBER = 'number'
 const TYP_TEXT = 'text'
+const TYP_TEXTAREA = 'textarea'
+const TYP_DATETIME = 'datetime'
+const TYP_SELECT = 'select'
+const ST_INTEGER = 'integer'
 const ST_PASSWORD = 'password'
+const ST_DATETIME = 'datetime'
+const ST_DATE = 'date'
+const ST_TIME = 'time'
+const ST_EMAIL = 'email'
 
 const H = new class {
     constructor () {
@@ -21,14 +29,6 @@ const H = new class {
         this.clearValidation = 'H.clearValidation'
         this.defaultAction = 'H.defaultAction'
         this.formInit = 'H.formInit'
-        //
-        this.TYP_DATETIME = 'datetime'
-        this.TYP_SELECT = 'select'
-        //
-        this.ST_DATETIME = 'datetime'
-        this.ST_DATE = 'date'
-        this.ST_TIME = 'time'
-        this.ST_EMAIL = 'email'
 
         this.lang = {
             offlineError: 'Você está desconectado.',
@@ -947,9 +947,9 @@ const H = new class {
                 })
             })
 
-        } else if (l_type === TYP_TEXT || l_type === TYP_NUMBER || l_type === 'datetime' || l_type === 'textarea') {
+        } else if (l_type === TYP_TEXT || l_type === TYP_NUMBER || l_type === TYP_DATETIME || l_type === TYP_TEXTAREA) {
             $form_group = $(`<div class='form-group ${l_grid_system}'></div>`)
-            if (l_type === 'textarea') {
+            if (l_type === TYP_TEXTAREA) {
                 $form_control = $(`<textarea class='form-control' id='${l_id}' name='${l_name}'></textarea>`)
             } else {
                 $form_control = $(`<input class='form-control' type='text' id='${l_id}' name='${l_name}' />`)
@@ -965,7 +965,7 @@ const H = new class {
                 $form_control.attr('type', 'password')
                 $form_control.attr('autocomplete', 'new-password')
                 $inputgroup_preaddon = $('<div class="input-group-prepend"><div class="input-group-text"><i class="la la-key" aria-hidden="true"></i></div></div>')
-            } else if (l_subtype === this.ST_EMAIL) {
+            } else if (l_subtype === ST_EMAIL) {
                 $inputgroup_preaddon = $('<div class="input-group-prepend "><div class="input-group-text"><i class="la la-envelope-o" aria-hidden="true"></i></div></div>')
             }
 
@@ -993,7 +993,7 @@ const H = new class {
             }
 
             if (l_opts.mask) {
-                $form_control.mask(l_opts.mask)
+                Inputmask(l_opts.mask).mask($form_control[0])
             }
 
             if (l_opts.initialValue) {
@@ -1040,19 +1040,19 @@ const H = new class {
                 // $form_control.attr("data-vmin", l_opts.min);
                 // $form_control.attr("data-vmax", l_opts.max);
             }
-            if (l_type === this.TYP_DATETIME) {
+            if (l_type === TYP_DATETIME) {
                 $inputgroup_addon = $('<div class="input-group-append" data-toggle="datetimepicker"><div class="input-group-text"><i class="la la-calendar"></i></div></div>')
                 //Pra fazer o picker funcionar
                 $inputgroup_addon.data('target', '#' + l_id)
                 $form_control.data('target', '#' + l_id)
                 $form_control.addClass('datetimepicker-input')
 
-                if (l_subtype === this.ST_DATE) {
+                if (l_subtype === ST_DATE) {
                     $form_control.datetimepicker({
                         locale: moment.locale(),
                         format: 'L'
                     })
-                } else if (l_subtype === this.ST_TIME) {
+                } else if (l_subtype === ST_TIME) {
                     $form_control.datetimepicker({
                         locale: moment.locale(),
                         format: 'LTS'
@@ -1094,7 +1094,7 @@ const H = new class {
                 }
             })
 
-        } else if (l_type === this.TYP_SELECT) {
+        } else if (l_type === TYP_SELECT) {
             $form_group = $(`<div class='form-group ${l_grid_system}'></div>`)
             $form_control = $(`<select class='form-control' id='${l_id}' name='${l_name}' />`)
             $label = $(`<label for='${l_id}'>${l_title}</label>`)

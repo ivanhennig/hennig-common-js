@@ -1,7 +1,7 @@
 {
   "name": "hennig-common",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "Common JS code for projects",
   "main": "index.js",
   "author": "",
   "license": "ISC",
@@ -9,6 +9,7 @@
     "autonumeric": "^4.6.0",
     "jquery": "^3.5.1",
     "vue": "^2.6.12",
-    "vue-notification": "^1.3.20"
+    "vue-notification": "^1.3.20",
+    "inputmask": "^5.0.5"
   }
 }
