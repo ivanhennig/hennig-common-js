@@ -9,6 +9,7 @@ export function initGrid (options = {}) {
 
     const collectionObj = options.collectionObj
     const bootgridParams = options.bootgridParams || {}
+    options.formatters = options.formatters || {}
     const customMethods = options.customMethods || {}
     const defaultSearch = {}
 
@@ -20,16 +21,21 @@ export function initGrid (options = {}) {
                 const $target = $(evnt.target).closest('.toolbar-action')
 
                 if ($target.is('.def')) {
-                    redirect({name: collectionObj})
-                    // H.rpc(collectionObj, 'form', [''], function (r) {
-                    //     if (!r) return
-                    //     H.createForm(r, {
-                    //         onstore (evnt, data, $form) {
-                    //             $table.bootgrid('reload')
-                    //             $form.closest('.modal').modal('hide')
-                    //         }
-                    //     })
-                    // })
+                    if (options.modalAdd) {
+                        H.rpc(collectionObj, 'form', [''], (r) => {
+                            if (!r) return
+                            H.createForm(r, {
+                                onstore (evnt, data, $form) {
+                                    $grid.bootgrid('reload')
+                                    $form.closest('.modal').modal('hide')
+                                }
+                            })
+                        })
+                    } else if (options.customAdd) {
+                        options.customAdd.apply(window, [collectionObj, $grid])
+                    } else {
+                        redirect({name: collectionObj})
+                    }
                 } else if ($target.is('.activefilter1')) {
                     defaultSearch.active = 1
                     $grid.bootgrid('reload')
@@ -49,6 +55,14 @@ export function initGrid (options = {}) {
             }
         })
         .on('loaded.rs.jquery.bootgrid', function () {
+            if (options.customEdit) {
+                customMethods.customEdit = options.customEdit
+            }
+
+            if (options.modalEdit) {
+                customMethods.modalEdit = true
+            }
+
             handleEvents(this, collectionObj, customMethods)
         })
         .bootgrid({
@@ -126,6 +140,7 @@ export function initGrid (options = {}) {
 
                     return moment.utc(row[column.id]).local().format('L LTS')
                 },
+                ...options.formatters,
                 ...bootgridParams.formatters
             },
         })
@@ -142,13 +157,20 @@ export function handleEvents (grid, classname, custom = {}) {
         if ($that.is('.edit')) {
             H.rpc(classname, 'form', [_id], function (r, e) {
                 if (!r) return
-                redirect({name: classname, params: {_id}})
-                // H.createForm(r, {
-                //     onstore (evnt, data, $form) {
-                //         $grid.bootgrid('reload')
-                //         $form.closest('.modal').modal('hide')
-                //     }
-                // })
+
+                if (custom.modalEdit) {
+                    H.createForm(r, {
+                        onstore (evnt, data, $form) {
+                            $grid.bootgrid('reload')
+                            $form.closest('.modal').modal('hide')
+                        }
+                    })
+                } else if (custom.customEdit) {
+                    custom.customEdit.apply(window, [classname, $grid, _id])
+                } else {
+                    redirect({name: classname, params: {_id}})
+                }
+
             })
         } else if ($that.is('.delete')) {
             H.showQuery('Deseja deletar este registro?', function (a) {
@@ -170,7 +192,7 @@ export function handleEvents (grid, classname, custom = {}) {
         } else {
             for (const name in custom) {
                 if ($that.hasClass(name)) {
-                    custom[name].apply(window, [_id])
+                    custom[name].apply(window, [_id, $that, $grid])
                 }
             }
         }
