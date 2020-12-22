@@ -1084,11 +1084,15 @@ const H = new class {
                     if (l_autonumeric) {
                         l_autonumeric.set(l_value)
                     } else if ($form_control.is('.datetimepicker-input')) {
-                        if (l_subtype === ST_DATE) {
-                            l_value = l_value.replace(/\.000000Z$/, '')
-                            $form_control.datetimepicker('date', window.moment(l_value).local())
+                        if (l_value) {
+                            if (l_subtype === ST_DATE) {
+                                l_value = (l_value + '').replace(/\.000000Z$/, '')
+                                $form_control.datetimepicker('date', window.moment(l_value).local())
+                            } else {
+                                $form_control.datetimepicker('date', window.moment.utc(l_value).local())
+                            }
                         } else {
-                        $form_control.datetimepicker('date', window.moment.utc(l_value).local())
+                            $form_control.val('')
                         }
                     } else {
                         $form_control.val(l_value)
