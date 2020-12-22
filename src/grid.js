@@ -128,14 +128,14 @@ export function initGrid (options = {}) {
                 },
                 'dt' (column, row) {
                     if (!row[column.id]) {
-                        return '-';
+                        return '-'
                     }
 
                     return moment(row[column.id]).format('L LTS')
                 },
                 'udt' (column, row) {
                     if (!row[column.id]) {
-                        return '-';
+                        return '-'
                     }
 
                     return moment.utc(row[column.id]).local().format('L LTS')
@@ -155,23 +155,21 @@ export function handleEvents (grid, classname, custom = {}) {
         const _id = $that.data('row-id')
 
         if ($that.is('.edit')) {
+            if (custom.modalEdit) {
             H.rpc(classname, 'form', [_id], function (r, e) {
                 if (!r) return
-
-                if (custom.modalEdit) {
                     H.createForm(r, {
                         onstore (evnt, data, $form) {
                             $grid.bootgrid('reload')
                             $form.closest('.modal').modal('hide')
                         }
                     })
+                })
                 } else if (custom.customEdit) {
                     custom.customEdit.apply(window, [classname, $grid, _id])
                 } else {
                     redirect({name: classname, params: {_id}})
                 }
-
-            })
         } else if ($that.is('.delete')) {
             H.showQuery('Deseja deletar este registro?', function (a) {
                 if (!a) return
