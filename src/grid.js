@@ -49,7 +49,10 @@ export function initGrid (options = {}) {
 
             })
 
-            $actionBar.prepend($(activeFilter()))
+            if (!options.noActiveFilter) {
+                $actionBar.prepend($(activeFilter()))
+            }
+
             if (!options.noAddButton) {
                 $actionBar.prepend($(newAction(options.addLabel || 'Novo item')))
             }
