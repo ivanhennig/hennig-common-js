@@ -823,13 +823,18 @@ const H = new class {
         }
 
         if (l_type === 'button') {
-            var $button = $(`<div class="btn">
+            if (l_opts.action === 'save') {
+                var $button = $(`<div class="mr-2 btn">
                     <div class="h-saving"><span aria-hidden="true" class="spinner-border spinner-border-sm" role="status"></span><span class="ml-1">Salvando...</span></div>
                     <div class="h-saved text-success"><i class="la la-check-circle"></i><span class="ml-1">Salvo</span></div>
                     <div class="h-failed text-danger"><i class="la la-exclamation-circle"></i><span class="ml-1">Falhou</span></div>
                     <div class="h-def">${l_title}</div>
                     </div>`)
             $button.find('>div').not('.h-def').hide()
+            } else {
+                var $button = $(`<div class="mr-2 btn">${l_title}</div>`)
+            }
+
             if (l_subtype) {
                 if (l_opts.outline) {
                     $button.addClass('btn-outline-' + l_subtype)
@@ -1192,6 +1197,10 @@ const H = new class {
             $form_control = $(`<p class='lead' id='${l_id}'></p>`)
             $label = $(`<label for='${l_id}'>${l_title}</label>`)
 
+            if (l_opts.initialValue) {
+                $form_control.html(l_opts.initialValue)
+            }
+
             $form_group.on(H.setValue, function (e, a_values) {
                 if (!l_name) return
                 var $target = $(e.target)
@@ -1210,6 +1219,11 @@ const H = new class {
         if (this.isTrue(l_opts.readonly)) {
             $form_control.attr('disabled', 'disabled')
         }
+
+        if (l_opts.classes) {
+            $form_control.addClass(l_opts.classes.join(' '))
+        }
+
         if (l_opts.placeholder) {
             $form_control.attr('title', l_opts.placeholder)
         }
@@ -1223,10 +1237,18 @@ const H = new class {
         }
         if (l_opts.on) {
             for (var i in l_opts.on) {
+                if (!l_opts.on.hasOwnProperty(i)) continue
+
                 let l_method = i
                 let l_code = l_opts.on[i]
+                let l_params = []
+                if (typeof l_code !== 'string') {
+                    l_code = l_opts.on[i].method
+                    l_params = l_opts.on[i].params
+                }
+
                 $form_control.on(l_method, function () {
-                    evalCode(l_code)
+                    evalCode(l_code, l_params)
                 })
             }
         }
