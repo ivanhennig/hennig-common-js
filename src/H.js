@@ -109,23 +109,6 @@ const H = new class {
         window.moment.locale(window.g_locale)
     }
 
-    initDateTimePicker () {
-        $.fn.datetimepicker.Constructor.Default = $.extend({}, $.fn.datetimepicker.Constructor.Default, {
-            icons: {
-                time: 'la la-clock-o',
-                date: 'la la-calendar',
-                up: 'la la-arrow-up',
-                down: 'la la-arrow-down',
-                previous: 'la la-chevron-left',
-                next: 'la la-chevron-right',
-                today: 'la la-calendar-check-o',
-                clear: 'la la-trash',
-                close: 'la la-times'
-            },
-            useCurrent: false
-        })
-    }
-
     initNumeral () {
         window.numeral.locale(window.g_locale)
         window.g_current_locale = window.numeral.locales[window.g_locale]
@@ -887,6 +870,17 @@ const H = new class {
 
                                 if (e.data) {
                                     $form.find('.form-group').trigger(H.setValidation, [e.data])
+                                    let message = []
+                                    for (const i in e.data) {
+                                        if (!$form.find('[name="' + i + '"]').not('[type="hidden"]').length) {
+                                            message.push(e.data[i].join('<br>'))
+                                        }
+                                    }
+
+                                    if (message.length) {
+                                        showError(message.join('<br>'))
+                                    }
+
                                     return true
                                 }
                             }
@@ -968,9 +962,9 @@ const H = new class {
                 $form_control.attr('type', 'hidden')
             } else if (l_subtype === ST_PASSWORD) {
                 if (l_opts.empty) {
-                    $form_control.attr('placeholder', '');
+                    $form_control.attr('placeholder', '')
                 } else {
-                    $form_control.attr('placeholder', '(deixar em branco para manter)');
+                    $form_control.attr('placeholder', '(deixar em branco para manter)')
                 }
                 $form_control.attr('type', 'password')
                 $form_control.attr('autocomplete', 'new-password')
@@ -1062,20 +1056,34 @@ const H = new class {
                 $inputgroup_addon.data('target', '#' + l_id)
                 $form_control.data('target', '#' + l_id)
                 $form_control.addClass('datetimepicker-input')
-
+                const opts = {
+                    locale: moment.locale(),
+                    icons: {
+                        time: 'la la-clock-o',
+                        date: 'la la-calendar',
+                        up: 'la la-arrow-up',
+                        down: 'la la-arrow-down',
+                        previous: 'la la-chevron-left',
+                        next: 'la la-chevron-right',
+                        today: 'la la-calendar-check-o',
+                        clear: 'la la-trash',
+                        close: 'la la-times'
+                    },
+                    useCurrent: false
+                }
                 if (l_subtype === ST_DATE) {
                     $form_control.datetimepicker({
-                        locale: moment.locale(),
+                        ...opts,
                         format: 'L'
                     })
                 } else if (l_subtype === ST_TIME) {
                     $form_control.datetimepicker({
-                        locale: moment.locale(),
+                        ...opts,
                         format: 'LTS'
                     })
                 } else {
                     $form_control.datetimepicker({
-                        locale: moment.locale(),
+                        ...opts,
                         format: 'L LTS'
                     })
                 }
@@ -1114,7 +1122,11 @@ const H = new class {
                     } else if (l_autonumeric) {
                         a_values[l_name] = l_autonumeric.get()
                     } else if ($form_control.is('.datetimepicker-input')) {
+                        if ($form_control.val()) {
                         a_values[l_name] = $form_control.datetimepicker('viewDate').toISOString(true)
+                        } else {
+                            a_values[l_name] = null
+                        }
                     } else {
                         a_values[l_name] = $form_control.val()
                     }

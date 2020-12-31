@@ -3,6 +3,16 @@ import bootgrid from './jquery.bootgrid'
 import {activeFilter, newAction} from './templates'
 import {showError} from './notifications'
 
+/**
+ * options
+ * - **container** jQuery element to render in
+ * - **collectionObj** Class name to call
+ * - **addLabel** String to use as button add text
+ * - **customAdd** Function to call instead of builtin
+ *
+ * @param {Object} options
+ * @return {$}
+ */
 export function initGrid (options = {}) {
     bootgrid()
     options.container = options.container || $('[data-toggle="bootgrid"]')
@@ -13,7 +23,7 @@ export function initGrid (options = {}) {
     const customMethods = options.customMethods || {}
     const defaultSearch = {}
 
-    options.container
+    return options.container
         .on('initialized.rs.jquery.bootgrid', function () {
             const $grid = $(this)
             let $actionBar = $grid.prev().find('.actionBar')
@@ -46,7 +56,6 @@ export function initGrid (options = {}) {
                     defaultSearch.active = undefined
                     $grid.bootgrid('reload')
                 }
-
             })
 
             if (!options.noActiveFilter) {
@@ -72,7 +81,16 @@ export function initGrid (options = {}) {
             ajax: true,
             url: `rpc/${collectionObj}/records`,
             requestHandler (request, elem) {
-                const customSearch = options.search || $(elem).closest('div').find('.search-container').find('input, select').serializeObject()
+                let customSearch = {}
+                if (options.search) {
+                    customSearch = options.search
+                    if (typeof customSearch === 'function') {
+                        customSearch = customSearch()
+                    }
+                } else {
+                    customSearch = $(elem).closest('div').find('.search-container').find('input, select').serializeObject()
+                }
+
                 request.search = { ...defaultSearch, ...customSearch }
                 return request
             },
@@ -128,6 +146,13 @@ export function initGrid (options = {}) {
                 },
                 'e' (column, row) {
                     return `<i class="command edit la la-pencil" data-row-id="${row._id}"></i>`
+                },
+                'd' (column, row) {
+                    if (!row[column.id]) {
+                        return '-'
+                    }
+
+                    return moment(row[column.id]).format('L')
                 },
                 'dt' (column, row) {
                     if (!row[column.id]) {
