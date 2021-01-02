@@ -799,7 +799,7 @@ const H = new class {
         var l_append = function (a_element) {//Adiciona em uma celula livre ou na parte central
             var $tab = l_container.find('#' + l_tab_ref)
             if (!$tab.length) {
-                $tab = $('<div class="tab-pane" id="' + l_tab_ref + '"><div class="row"></div></div>').appendTo(l_container)
+                $tab = $('<div class="tab-pane" id="' + l_tab_ref + '"><div class="row justify-content-center"></div></div>').appendTo(l_container)
             }
 
             $tab.find('.row').first().append(a_element)
@@ -1318,6 +1318,9 @@ const H = new class {
             $form_group.append($validation_message)
         }
         l_append($form_group)
+        if (l_opts.grid_break_after) {
+            l_append('<div class="w-100">');
+        }
         $form_group.trigger(H.formInit)//Alguns componentes precisam ser inicializados depois de estar renderizado
     }
 
