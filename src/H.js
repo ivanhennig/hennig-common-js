@@ -813,7 +813,7 @@ const H = new class {
                     <div class="h-failed text-danger"><i class="la la-exclamation-circle"></i><span class="ml-1">Falhou</span></div>
                     <div class="h-def">${l_title}</div>
                     </div>`)
-            $button.find('>div').not('.h-def').hide()
+                $button.find('>div').not('.h-def').hide()
             } else {
                 var $button = $(`<div class="mr-2 btn">${l_title}</div>`)
             }
@@ -999,10 +999,11 @@ const H = new class {
             var l_maskinstance = null
             if (l_opts.mask) {
                 const clearMaskOnLostFocus = false
-                const keepStatic = true
+                const mask = l_opts.mask
 
-                l_maskinstance = Inputmask(l_opts.mask, {
-                    clearMaskOnLostFocus, keepStatic
+                l_maskinstance = Inputmask({
+                    mask,
+                    clearMaskOnLostFocus
                 }).mask($form_control[0])
             }
 
@@ -1123,7 +1124,7 @@ const H = new class {
                         a_values[l_name] = l_autonumeric.get()
                     } else if ($form_control.is('.datetimepicker-input')) {
                         if ($form_control.val()) {
-                        a_values[l_name] = $form_control.datetimepicker('viewDate').toISOString(true)
+                            a_values[l_name] = $form_control.datetimepicker('viewDate').toISOString(true)
                         } else {
                             a_values[l_name] = null
                         }
