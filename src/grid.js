@@ -9,6 +9,9 @@ import {showError} from './notifications'
  * - **collectionObj** Class name to call
  * - **addLabel** String to use as button add text
  * - **customAdd** Function to call instead of builtin
+ * - **noAddButton** Disables
+ * - **noActiveFilter** Disables
+ * - **rowClick** Use row click as edit link
  *
  * @param {Object} options
  * @return {$}
@@ -18,6 +21,7 @@ export function initGrid (options = {}) {
     options.container = options.container || $('[data-toggle="bootgrid"]')
 
     const collectionObj = options.collectionObj
+    const rowClick = !!options.rowClick
     const bootgridParams = options.bootgridParams || {}
     options.formatters = options.formatters || {}
     const customMethods = options.customMethods || {}
@@ -66,7 +70,7 @@ export function initGrid (options = {}) {
                 $actionBar.prepend($(newAction(options.addLabel || 'Novo item')))
             }
         })
-        .on('loaded.rs.jquery.bootgrid', function () {
+        .on('loaded.rs.jquery.bootgrid', function (evnt) {
             if (options.customEdit) {
                 customMethods.customEdit = options.customEdit
             }
@@ -75,7 +79,7 @@ export function initGrid (options = {}) {
                 customMethods.modalEdit = true
             }
 
-            handleEvents(this, collectionObj, customMethods)
+            handleEvents(evnt, this, collectionObj, customMethods, rowClick)
         })
         .bootgrid({
             ajax: true,
@@ -91,7 +95,7 @@ export function initGrid (options = {}) {
                     customSearch = $(elem).closest('div').find('.search-container').find('input, select').serializeObject()
                 }
 
-                request.search = { ...defaultSearch, ...customSearch }
+                request.search = {...defaultSearch, ...customSearch}
                 return request
             },
             responseHandler (response) {
@@ -174,53 +178,79 @@ export function initGrid (options = {}) {
         })
 }
 
-export function handleEvents (grid, classname, custom = {}) {
+function _edit (evnt, _id, grid, classname, custom) {
     let $grid = $(grid)
-    $grid.find('tbody tr').off().on('click', function (element) {
-        let $that = $(element.target)
-        if (!$that.is('.command')) return
+    if (custom.modalEdit) {
+        H.rpc(classname, 'form', [_id], function (r, e) {
+            if (!r) return
+            H.createForm(r, {
+                onstore (evnt, data, $form) {
+                    $grid.bootgrid('reload')
+                    $form.closest('.modal').modal('hide')
+                }
+            })
+        })
+    } else if (custom.customEdit) {
+        custom.customEdit.apply(window, [classname, $grid, _id])
+    } else {
+        redirect({name: classname, params: {_id}}, evnt.ctrlKey || evnt.shiftKey)
+    }
+}
 
-        const _id = $that.data('row-id')
+export function handleEvents (evnt, grid, classname, custom = {}, rowClick) {
+    let $grid = $(grid)
+    const $tr = $grid.find('tbody tr')
+    let longPress = 0
+    $tr.off('mousedown').on('mousedown', function () {
+        longPress = performance.now()
+    });
+    $tr.off('click').on('click', function (evnt) {
+        if (performance.now() - longPress > 250) {
+            return
+        }
 
-        if ($that.is('.edit')) {
-            if (custom.modalEdit) {
-            H.rpc(classname, 'form', [_id], function (r, e) {
-                if (!r) return
-                    H.createForm(r, {
-                        onstore (evnt, data, $form) {
+        let $that = $(evnt.target)
+
+
+        let handled
+        if ($that.is('.command')) {
+            const _id = $that.data('row-id')
+            if ($that.is('.edit')) {
+                handled = true
+                _edit(evnt, _id, grid, classname, custom)
+            } else if ($that.is('.delete')) {
+                H.showQuery('Deseja deletar este registro?', function (a) {
+                    if (!a) return
+                    H.rpc(classname, 'delete', [_id], function (r, e) {
+                        if (r) {
                             $grid.bootgrid('reload')
-                            $form.closest('.modal').modal('hide')
                         }
                     })
                 })
-                } else if (custom.customEdit) {
-                    custom.customEdit.apply(window, [classname, $grid, _id])
-                } else {
-                    redirect({name: classname, params: {_id}})
-                }
-        } else if ($that.is('.delete')) {
-            H.showQuery('Deseja deletar este registro?', function (a) {
-                if (!a) return
-                H.rpc(classname, 'delete', [_id], function (r, e) {
+                handled = true
+            } else if ($that.is('.checkbox')) {
+                let p = {_id}
+                p[$that.data('field')] = !$that.data('value')
+                H.rpc(classname, 'save', [p], function (r, e) {
                     if (r) {
                         $grid.bootgrid('reload')
                     }
                 })
-            })
-        } else if ($that.is('.checkbox')) {
-            let p = {_id}
-            p[$that.data('field')] = !$that.data('value')
-            H.rpc(classname, 'save', [p], function (r, e) {
-                if (r) {
-                    $grid.bootgrid('reload')
-                }
-            })
-        } else {
-            for (const name in custom) {
-                if ($that.hasClass(name)) {
-                    custom[name].apply(window, [_id, $that, $grid])
+                handled = true
+            } else {
+                for (const name in custom) {
+                    if ($that.hasClass(name)) {
+                        custom[name].apply(window, [_id, $that, $grid])
+                        handled = true
+                    }
                 }
             }
+        }
+
+        if (!handled && rowClick) {
+            const rowid = $that.closest('[data-row-id]').data('row-id')
+            const rows = $grid.bootgrid('getCurrentRows')
+            _edit(evnt, rows[rowid]._id, grid, classname, custom)
         }
     })
 }

@@ -955,6 +955,7 @@ const H = new class {
             }
 
             $label = $(`<label for='${l_id}'>${l_title}</label>`)
+            $form_control.prop('autocomplete', 'no')
 
             if (l_subtype === 'hidden') {
                 $label.hide()
