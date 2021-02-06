@@ -1,6 +1,6 @@
 {
   "name": "hennig-common",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "Common JS code for projects",
   "main": "index.js",
   "author": "",
@@ -10,6 +10,8 @@
     "jquery": "^3.5.1",
     "vue": "^2.6.12",
     "vue-notification": "^1.3.20",
+    "numeral": "^2.0.6",
+    "moment": "^2.29.1",
     "inputmask": "^5.0.5"
   }
 }

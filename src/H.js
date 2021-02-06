@@ -3,6 +3,8 @@ import jQuery from 'jquery'
 import {showError, showInfo, showSuccess} from './notifications'
 import AutoNumeric from 'autonumeric'
 import Inputmask from 'inputmask'
+import moment from 'moment'
+import numeral from 'numeral'
 
 const TYP_NUMBER = 'number'
 const TYP_TEXT = 'text'
@@ -59,6 +61,9 @@ const H = new class {
             // Back off, browser, I got this...
             history.scrollRestoration = 'manual'
         }
+
+        this.initMoment()
+        this.initNumeral()
     }
 
     initVue (Vue) {
@@ -106,12 +111,32 @@ const H = new class {
      * Init Moment and Tempus Dominus
      */
     initMoment () {
-        window.moment.locale(window.g_locale)
+        moment.locale(window.g_locale)
     }
 
     initNumeral () {
-        window.numeral.locale(window.g_locale)
-        window.g_current_locale = window.numeral.locales[window.g_locale]
+        if (window.g_current_locale) return
+        numeral.register('locale', 'pt-br', {
+            delimiters: {
+                thousands: '.',
+                decimal: ','
+            },
+            abbreviations: {
+                thousand: 'mil',
+                million: 'milhões',
+                billion: 'b',
+                trillion: 't'
+            },
+            ordinal: function (number) {
+                return 'º';
+            },
+            currency: {
+                symbol: 'R$'
+            }
+        });
+
+        numeral.locale(window.g_locale)
+        window.g_current_locale = numeral.locales[window.g_locale]
     }
 
     /**
@@ -289,15 +314,15 @@ const H = new class {
     }
 
     formatNumber (v) {
-        return window.numeral(v).format(',0.00')
+        return numeral(v).format(',0.00')
     }
 
     formatCurrency (v) {
-        return window.numeral(v).format('$,0.00')
+        return numeral(v).format('$,0.00')
     }
 
     formatDatetime (v) {
-        return window.moment.utc(v || {}).local().format('L LTS')
+        return moment.utc(v || {}).local().format('L LTS')
     }
 
     /**
@@ -1102,9 +1127,9 @@ const H = new class {
                         if (l_value) {
                             if (l_subtype === ST_DATE) {
                                 l_value = (l_value + '').replace(/\.000000Z$/, '')
-                                $form_control.datetimepicker('date', window.moment(l_value).local())
+                                $form_control.datetimepicker('date', moment(l_value).local())
                             } else {
-                                $form_control.datetimepicker('date', window.moment.utc(l_value).local())
+                                $form_control.datetimepicker('date', moment.utc(l_value).local())
                             }
                         } else {
                             $form_control.val('')
