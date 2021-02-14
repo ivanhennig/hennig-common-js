@@ -26,6 +26,7 @@ const H = new class {
         this.onstore = 'H.onstore'
         this.getValue = 'H.getValue'
         this.setValue = 'H.setValue'
+        this.setProp = 'H.setProp'
         this.setActiveTab = 'H.setActiveTab'
         this.setValidation = 'H.setValidation'
         this.clearValidation = 'H.clearValidation'
@@ -158,9 +159,20 @@ const H = new class {
         // }
 
         let l_process_json = (l_data) => {
+            if (Array.isArray(l_data)) {
+                for (const command of l_data) {
+                    l_process_json(command)
+                }
+
+                return
+            }
+
             if ('method' in l_data) {//Servidor enviando comandos
                 evalCode(l_data.method, l_data.params)
-            } else if ('error' in l_data && l_data.error) {//Server sent an error
+                return
+            }
+
+            if ('error' in l_data && l_data.error) {//Server sent an error
                 if (l_data.error.trace) {
                     console.warn(l_data.error.trace)
                 }
@@ -169,7 +181,11 @@ const H = new class {
                 if (errorShow === undefined) {
                     this.showError(l_data.error.message)
                 }
-            } else if ('result' in l_data) {//Servidor enviando a resposta
+
+                return
+            }
+
+            if ('result' in l_data) {//Servidor enviando a resposta
                 l_callback(l_data.result, null)
             }
         }
@@ -929,11 +945,30 @@ const H = new class {
 
         if (l_type === 'vue' && l_subtype) {
             $form_group = $(`<div class='form-group ${l_grid_system}'></div>`)
-            $form_control = $(`<div ref="c" is="${l_subtype}"></div>`)
+            $form_control = $(`<div><div ref="c" is="${l_subtype}"></div></div>`)
             $label = $(`<label for='${l_id}'>${l_title}</label>`)
             $form_group.on(H.formInit, function (e, a_values) {
                 const vueInstance = new Vue({
                     name: `${l_subtype}Root`,
+                    mounted() {
+                        if (l_opts.on) {
+                            for (var i in l_opts.on) {
+                                if (!l_opts.on.hasOwnProperty(i)) continue
+
+                                let l_method = i
+                                let l_code = l_opts.on[i]
+                                let l_params = []
+                                if (typeof l_code !== 'string') {
+                                    l_code = l_opts.on[i].method
+                                    l_params = l_opts.on[i].params
+                                }
+
+                                this.$refs.c.$on(l_method, function (...args) {
+                                    evalCode(l_code, args)
+                                })
+                            }
+                        }
+                    },
                     methods: {
                         setProps (props) {
                             if (this.$refs.c.hasOwnProperty('setProps')) {
@@ -952,6 +987,9 @@ const H = new class {
                         }
                     }
                 }).$mount($form_control[0])
+                $form_group.on(H.setProp, function (e, a_values) {
+                    vueInstance.setProps(a_values)
+                })
                 vueInstance.setProps(l_opts.props)
                 $form_group.on(H.setValue, function (e, a_values) {
                     if (!l_name) return
@@ -980,7 +1018,7 @@ const H = new class {
             }
 
             $label = $(`<label for='${l_id}'>${l_title}</label>`)
-            $form_control.prop('autocomplete', 'no')
+            $form_control.prop('autocomplete', 'off')
 
             if (l_subtype === 'hidden') {
                 $label.hide()
@@ -1095,6 +1133,10 @@ const H = new class {
                         today: 'la la-calendar-check-o',
                         clear: 'la la-trash',
                         close: 'la la-times'
+                    },
+                    buttons: {
+                        showClear: true,
+                        showClose: true
                     },
                     useCurrent: false
                 }
@@ -1348,7 +1390,7 @@ const H = new class {
         if (l_opts.grid_break_after) {
             l_append('<div class="w-100">');
         }
-        $form_group.trigger(H.formInit)//Alguns componentes precisam ser inicializados depois de estar renderizado
+        $form_group.addClass(l_name).trigger(H.formInit)//Alguns componentes precisam ser inicializados depois de estar renderizado
     }
 
     /**
