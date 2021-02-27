@@ -20,6 +20,7 @@ const ST_EMAIL = 'email'
 
 const H = new class {
     constructor () {
+        this.request = []
         this.prefix = ''
         this.sessionStorageKey = 'H'
         this.show = 'H.show'
@@ -129,12 +130,12 @@ const H = new class {
                 trillion: 't'
             },
             ordinal: function (number) {
-                return 'º';
+                return 'º'
             },
             currency: {
                 symbol: 'R$'
             }
-        });
+        })
 
         numeral.locale(window.g_locale)
         window.g_current_locale = numeral.locales[window.g_locale]
@@ -177,6 +178,10 @@ const H = new class {
                     console.warn(l_data.error.trace)
                 }
 
+                if (l_data.error.message) {
+                    console.error(aclass + '::' + amethod + '(' + aparams.join(',') + ')', l_data.error.message)
+                }
+
                 let errorShow = l_callback(null, l_data.error)
                 if (errorShow === undefined) {
                     this.showError(l_data.error.message)
@@ -186,11 +191,17 @@ const H = new class {
             }
 
             if ('result' in l_data) {//Servidor enviando a resposta
+                console.log(aclass + '::' + amethod + '(' + aparams.join(',') + ')', l_data.result)
                 l_callback(l_data.result, null)
             }
         }
 
         let l_process = (lines) => {
+            if (typeof lines !== 'string') {
+                l_process_json(lines)
+                return
+            }
+
             lines = lines.split(/\n/)
             for (let i in lines) {
                 if (!lines.hasOwnProperty(i)) continue
@@ -224,46 +235,72 @@ const H = new class {
             setTimeout(l_progress, 1000)
         }
         let lastResponseLength = 0
-        let payload = JSON.stringify({
+        let payload = {
+            object: aclass,
             method: amethod,
             params: aparams
-        })
-        if (this.jQuery && this.jQuery.ajax) {
-            this.jQuery.ajax({
-                url: `${this.prefix}rpc/${aclass}/${amethod}`,
-                type: 'POST',
-                contentType: 'application/json',
-                dataType: 'json',
-                data: payload,
-                processData: false,
-                async: true,
-            }).fail(function (xhr, textStatus, errorThrown) {
-                if (textStatus === 'parsererror') {
-                    l_callback(null, {'message': xhr.responseText})
-                } else {
-                    l_callback(null, {'message': errorThrown})
-                }
-                l_stop = true
-            }).done(function (a_data, textStatus, xhr) {
-                l_process(xhr.responseText.substring(lastResponseLength))
-                l_stop = true
-            })
-        } else {
-            fetch(`${this.prefix}rpc/${aclass}/${amethod}`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json;charset=utf-8'
-                    },
-                    body: payload
-                })
-                .then((r) => {
-                    return r.json()
-                })
-                .then((r) => {
-                    return l_process_json(r)
-                })
         }
+
+        const url = `${this.prefix}rpc/${aclass}/${amethod}`
+
+        this.request.push({
+            ...payload,
+            onresponse (r) {
+                l_process(r)
+            }
+        })
+
+        clearTimeout(this.timerHandler)
+        this.timerHandler = setTimeout(() => {
+            const grouped = this.request
+            const grouped_str = JSON.stringify(grouped)
+            this.request = []
+            const process_group = (r) => {
+                const responses = JSON.parse(r)
+                for (const response of responses) {
+                    grouped.shift().onresponse(response)
+                }
+            }
+            if (this.jQuery && this.jQuery.ajax) {
+                this.jQuery
+                    .ajax({
+                        url: `${this.prefix}rpc/calls`,
+                        type: 'POST',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        data: grouped_str,
+                        processData: false,
+                        async: true,
+                    })
+                    .fail(function (xhr, textStatus, errorThrown) {
+                        if (textStatus === 'parsererror') {
+                            l_callback(null, {'message': xhr.responseText})
+                        } else {
+                            l_callback(null, {'message': errorThrown})
+                        }
+                        l_stop = true
+                    })
+                    .done(function (a_data, textStatus, xhr) {
+                        process_group(xhr.responseText.substring(lastResponseLength))
+                        l_stop = true
+                    })
+            } else {
+                fetch(`${this.prefix}rpc/calls`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json;charset=utf-8'
+                        },
+                        body: grouped_str
+                    })
+                    .then((r) => {
+                        return r.json()
+                    })
+                    .then((r) => {
+                        return process_group(r)
+                    })
+            }
+        }, 200)
     }
 
     /**
@@ -674,8 +711,10 @@ const H = new class {
     createForm (a_param, a_options) {
         let H = this
         a_options = a_options || {}
-        a_options.onupdate = a_options.onupdate || function () {}
-        a_options.onstore = a_options.onstore || function () {}
+        a_options.onupdate = a_options.onupdate || function () {
+        }
+        a_options.onstore = a_options.onstore || function () {
+        }
 
         var $form = $(`
         <div id="${a_param.id}" class="card">
@@ -950,7 +989,7 @@ const H = new class {
             $form_group.on(H.formInit, function (e, a_values) {
                 const vueInstance = new Vue({
                     name: `${l_subtype}Root`,
-                    mounted() {
+                    mounted () {
                         if (l_opts.on) {
                             for (var i in l_opts.on) {
                                 if (!l_opts.on.hasOwnProperty(i)) continue
@@ -1388,7 +1427,7 @@ const H = new class {
         }
         l_append($form_group)
         if (l_opts.grid_break_after) {
-            l_append('<div class="w-100">');
+            l_append('<div class="w-100">')
         }
         $form_group.addClass(l_name).trigger(H.formInit)//Alguns componentes precisam ser inicializados depois de estar renderizado
     }

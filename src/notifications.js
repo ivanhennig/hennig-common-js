@@ -39,5 +39,5 @@ export function showError (text, callback = () => {}) {
         text,
         type: 'error'
     })
-    setTimeout(callback, 2000)
+    setTimeout(callback, 4000)
 }
