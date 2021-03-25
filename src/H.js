@@ -179,7 +179,7 @@ const H = new class {
                 }
 
                 if (l_data.error.message) {
-                    console.error(aclass + '::' + amethod + '(' + aparams.join(',') + ')', l_data.error.message)
+                    console.error(aclass + '::' + amethod + '(' + JSON.stringify(aparams) + ')', l_data.error.message)
                 }
 
                 let errorShow = l_callback(null, l_data.error)
@@ -191,7 +191,7 @@ const H = new class {
             }
 
             if ('result' in l_data) {//Servidor enviando a resposta
-                console.log(aclass + '::' + amethod + '(' + aparams.join(',') + ')', l_data.result)
+                console.log(aclass + '::' + amethod + '(' + JSON.stringify(aparams) + ')', l_data.result)
                 l_callback(l_data.result, null)
             }
         }
