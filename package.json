@@ -1,6 +1,6 @@
 {
   "name": "hennig-common",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Common JS code for projects",
   "browser": "dist/hennig-common-vue.esm.js",
   "module": "dist/hennig-common-vue.esm.js",
@@ -8,7 +8,8 @@
   "main": "index.js",
   "files": [
     "dist/*",
-    "src/**/*.vue"
+    "src/**/*.vue",
+    "src/lib/*.js"
   ],
   "sideEffects": false,
   "author": "Ivan Hennig",
