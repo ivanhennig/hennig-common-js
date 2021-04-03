@@ -24,6 +24,7 @@
     </div>
 </template>
 <script>
+import jQuery from 'jquery'
 
 export default {
     name: 'BaseModal',
@@ -37,11 +38,11 @@ export default {
     },
     methods: {
         show (callback) {
-            $(this.$el).modal({backdrop: this.backdrop})
+            jQuery(this.$el).modal({backdrop: this.backdrop})
             this.callback = callback
         },
         hide () {
-            $(this.$el).modal('hide')
+            jQuery(this.$el).modal('hide')
             if (this.callback) this.callback(false)
         }
     }
