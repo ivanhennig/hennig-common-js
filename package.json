@@ -1,11 +1,11 @@
 {
   "name": "hennig-common",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "Common JS code for projects",
   "main": "index.js",
   "files": [
-    "components/*.vue",
-    "lib/*.js"
+    "src/components/*.vue",
+    "src/lib/*.js"
   ],
   "author": "Ivan Hennig",
   "license": "ISC",
