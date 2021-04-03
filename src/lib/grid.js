@@ -4,7 +4,9 @@ import {activeFilter, newAction} from './templates'
 import {showError} from './notifications'
 
 /**
- * # Options
+ * # Grid
+ *
+ * ## Options
  * - **container** jQuery element to render in
  * - **collectionObj** Class name to call
  * - **search** Search obj to use as filter
@@ -25,6 +27,7 @@ import {showError} from './notifications'
  * - **noActiveFilter** Disables
  *
  * ## Custom fields
+ * - **actions** Replace props below
  * - **formatters** Object of functions, must return HTML
  * - **customMethods** Object of functions, work together to **formatters**
  *
@@ -43,8 +46,17 @@ export function initGrid (options = {}) {
     const rowClick = !!options.rowClick
     const bootgridParams = options.bootgridParams || {}
     options.formatters = options.formatters || {}
-    const customMethods = options.customMethods || {}
+    options.customMethods = options.customMethods || {}
     const defaultSearch = {}
+
+    options.actions = options.actions || []
+    for (const action of options.actions) {
+        options.formatters[action.name] = (column, row) => {
+            return `<i class="command ${action.name} la ${action.icon}" data-row-id="${row._id}"></i>`
+        }
+        options.customMethods[action.name] = action.handler
+    }
+
 
     return options.container
         .on('initialized.rs.jquery.bootgrid', function () {
@@ -91,11 +103,11 @@ export function initGrid (options = {}) {
         })
         .on('loaded.rs.jquery.bootgrid', function (evnt) {
             if (options.customEdit) {
-                customMethods.customEdit = options.customEdit
+                options.customMethods.customEdit = options.customEdit
             }
 
             if (options.modalEdit) {
-                customMethods.modalEdit = true
+                options.customMethods.modalEdit = true
             }
 
             handleEvents(evnt, this, options)
