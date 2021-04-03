@@ -118,25 +118,6 @@ const H = new class {
 
     initNumeral() {
         if (window.g_current_locale) return
-        numeral.register('locale', 'pt-br', {
-            delimiters: {
-                thousands: '.',
-                decimal: ','
-            },
-            abbreviations: {
-                thousand: 'mil',
-                million: 'milhões',
-                billion: 'b',
-                trillion: 't'
-            },
-            ordinal: function (number) {
-                return 'º'
-            },
-            currency: {
-                symbol: 'R$'
-            }
-        })
-
         numeral.locale(window.g_locale)
         window.g_current_locale = numeral.locales[window.g_locale]
     }
