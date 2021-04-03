@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import jQuery from 'jquery'
-import {showError, showInfo, showSuccess} from './notifications'
+import {showError, showInfo} from './notifications'
 import AutoNumeric from 'autonumeric'
 import Inputmask from 'inputmask'
 import moment from 'moment'
@@ -19,7 +19,7 @@ const ST_TIME = 'time'
 const ST_EMAIL = 'email'
 
 const H = new class {
-    constructor () {
+    constructor() {
         this.request = []
         this.prefix = ''
         this.sessionStorageKey = 'H'
@@ -49,7 +49,7 @@ const H = new class {
         }
     }
 
-    setup (options) {
+    setup(options) {
         options = options || {}
         this.prefix = options.prefix || ''
 
@@ -58,7 +58,7 @@ const H = new class {
         }
     }
 
-    init () {
+    init() {
         if ('scrollRestoration' in history) {
             // Back off, browser, I got this...
             history.scrollRestoration = 'manual'
@@ -68,14 +68,14 @@ const H = new class {
         this.initNumeral()
     }
 
-    initVue (Vue) {
+    initVue(Vue) {
         this.Vue = Vue
         this.Vue.filter('formatDateTime', (value) => {
             return this.formatDatetime(value)
         })
     }
 
-    initJQuery (jQuery) {
+    initJQuery(jQuery) {
         this.jQuery = jQuery;
         // Override of val method of jQuery.
         // Will affect val(), serialize(), serializeArray(), serializeObject()
@@ -112,11 +112,11 @@ const H = new class {
     /**
      * Init Moment and Tempus Dominus
      */
-    initMoment () {
+    initMoment() {
         moment.locale(window.g_locale)
     }
 
-    initNumeral () {
+    initNumeral() {
         if (window.g_current_locale) return
         numeral.register('locale', 'pt-br', {
             delimiters: {
@@ -149,7 +149,7 @@ const H = new class {
      * @param {function} acallback
      * @param progresscb
      */
-    rpc (aclass, amethod, aparams, acallback, progresscb) {
+    rpc(aclass, amethod, aparams, acallback, progresscb) {
         let l_callback = acallback || function (r, e) {
             console.info(r)
             console.error(e)
@@ -184,7 +184,7 @@ const H = new class {
 
                 let errorShow = l_callback(null, l_data.error)
                 if (errorShow === undefined) {
-                    this.showError(l_data.error.message)
+                    showError(l_data.error.message)
                 }
 
                 return
@@ -245,7 +245,7 @@ const H = new class {
 
         this.request.push({
             ...payload,
-            onresponse (r) {
+            onresponse(r) {
                 l_process(r)
             }
         })
@@ -308,7 +308,7 @@ const H = new class {
      *
      * @param callback
      */
-    geoLocation (callback) {
+    geoLocation(callback) {
         callback = callback || function (r, e) {
             console.info(r)
             console.error(e)
@@ -327,7 +327,7 @@ const H = new class {
         }
     }
 
-    sessionStorage (k, v) {
+    sessionStorage(k, v) {
         var l_obj = {}
         try {
             l_obj = JSON.parse(window.sessionStorage[this.sessionStorageKey])
@@ -343,7 +343,7 @@ const H = new class {
         return true
     }
 
-    sessionStorageGet (k, def) {
+    sessionStorageGet(k, def) {
         var l_obj = {}
         try {
             l_obj = JSON.parse(window.sessionStorage[this.sessionStorageKey])
@@ -353,7 +353,7 @@ const H = new class {
         return l_obj[k] || def
     }
 
-    sessionStorageSet (k, val) {
+    sessionStorageSet(k, val) {
         let obj = {}
         try {
             obj = JSON.parse(window.sessionStorage[this.sessionStorageKey])
@@ -366,15 +366,15 @@ const H = new class {
         return true
     }
 
-    formatNumber (v) {
+    formatNumber(v) {
         return numeral(v).format(',0.00')
     }
 
-    formatCurrency (v) {
+    formatCurrency(v) {
         return numeral(v).format('$,0.00')
     }
 
-    formatDatetime (v) {
+    formatDatetime(v) {
         return moment.utc(v || {}).local().format('L LTS')
     }
 
@@ -383,7 +383,7 @@ const H = new class {
      *
      * @param a_container
      */
-    serializeChecklist (a_container) {
+    serializeChecklist(a_container) {
         var l_data = {}
         a_container.find('input[type=checkbox]').each(function () {
             var $that = $(this)
@@ -397,7 +397,7 @@ const H = new class {
      *
      * @param a_container
      */
-    serialize (a_container) {
+    serialize(a_container) {
         let H = this
         var l_data = {}
         a_container = this.find(a_container)
@@ -411,13 +411,13 @@ const H = new class {
      * @param a_container
      * @param a_data
      */
-    unserialize (a_container, a_data) {
+    unserialize(a_container, a_data) {
         let H = this
         a_container = this.find(a_container)
         a_container.find('.form-group').trigger(H.setValue, [a_data])
     }
 
-    getBootstrapDevice () {
+    getBootstrapDevice() {
         if (window.innerWidth >= 1200) {
             return 'xl'
         }
@@ -443,7 +443,7 @@ const H = new class {
      * @param $elem
      * @param callback
      */
-    fileAsBase64 ($elem, callback) {
+    fileAsBase64($elem, callback) {
         let file = $elem.get(0).files[0]
         let reader = new FileReader()
         reader.onload = function (el) {
@@ -458,257 +458,12 @@ const H = new class {
     }
 
     /**
-     * Ask for confirmation
-     * options
-     *   default_answer: Default action when timeout
-     *
-     * @param msg
-     * @param callback
-     * @param options
-     */
-    showQuery (msg, callback, options) {
-        let H = this
-        callback = callback || function (r) {
-            console.info(r)
-        }
-
-        options = options || {}
-
-        let answer = options.default_answer || false
-        options = $.extend({
-            showProgressbar: false,
-            animate: {
-                enter: 'animated bounceIn',
-                exit: 'hide'
-            },
-            placement: {
-                from: 'top',
-                align: 'center'
-            },
-            onClosed () {
-                callback(answer)
-            },
-            z_index: 1051,
-            template: `
-<div 
-    data-notify="container" 
-    class="col-md-6 alert alert-{0}"
-    style="max-width: 600px" 
-    role="alert">
-	<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>
-	<span data-notify="icon"></span>
-	<span data-notify="title">{1}</span>
-	<span data-notify="message">{2}</span>
-	<hr>
-	<div class="row justify-content-center mt-2">
-        <button 
-            class="btn btn-outline-secondary col m-2 btn-1"
-            style="min-width: 150px" 
-            >
-            ${H.lang.yes}
-        </button>
-        <button 
-            class="btn btn-outline-secondary col m-2 btn-2"
-            style="min-width: 150px"
-            >
-            ${H.lang.no}
-        </button>
-    </div>
-</div>`
-        }, options)
-
-        let notify = $.notify({
-            // title: 'Confirmação',
-            message: msg
-        }, options)
-        notify.$ele.find('.btn-1').on('click', function () {
-            answer = true
-            notify.close()
-        })
-        notify.$ele.find('.btn-2').on('click', function () {
-            answer = false
-            notify.close()
-        })
-    }
-
-    showSuccess (msg, options) {
-        showSuccess(msg)
-    }
-
-    showInfo (msg, options) {
-        showInfo(msg)
-    }
-
-    showError (msg, options) {
-        showError(msg)
-    }
-
-    loadAssets (links, callback) {
-        let deferreds = []
-        for (let i in links) {
-            if (!links.hasOwnProperty(i)) continue
-            deferreds.push(this.loadAsset(links[i]))
-        }
-
-        Promise.all(deferreds).then(() => {
-            callback()
-        })
-    }
-
-    loadAsset (href) {
-        this.loaded_assets = this.loaded_assets || {}
-        var $d = $.Deferred()
-        var l_key = btoa(href)
-
-        if (this.loaded_assets[l_key]) {
-            $d.resolve()
-            return $d.promise()
-        }
-
-        this.loaded_assets[l_key] = true
-
-        if (href.match(/\.css$|\.css\.gz$/)) {
-            let el = document.createElement('link')
-            el.type = 'text/css'
-            el.rel = 'stylesheet'
-            el.href = href
-            el.onload = function () {
-                $d.resolve()
-            }
-            document.head.appendChild(el)
-        } else {
-            let el = document.createElement('script')
-            if (href.match(/^http/)) {
-                el.crossOrigin = 'anonymous'
-            }
-            el.type = 'text/javascript'
-            el.src = href
-            el.onload = function () {
-                $d.resolve()
-            }
-            document.head.appendChild(el)
-        }
-
-        return $d.promise()
-    }
-
-    carregarPagina (a_page, a_options) {
-        let H = this
-
-        if (window.g_app_error) {
-            document.getElementsByTagName('body')[0].innerHTML = '<h1>Algo deu errado. Contate o suporte.</h1>'
-            return
-        }
-
-        var l_options = a_options || {}
-        var l_menu_h = $('#bg-menu').height()
-
-        if (!a_page) {
-            if (location.hash.match(/#/)) {
-                a_page = location.hash.substring(1)
-            } else {
-                a_page = 'home'
-            }
-        }
-        if (!a_page || (a_page === '')) {
-            return
-        }
-        var l_page = a_page.split(/[\.\/]/).filter(function (r) {
-            return !!r
-        })
-        if (!l_page.length) {
-            return
-        }
-        var l_fn = function ($a_elem) {
-            if ($a_elem.is('[data-oncreate]')) {//Apenas 1ª
-                var l_method = $a_elem.data('oncreate')
-                $a_elem.removeAttr('data-oncreate')
-                evalCode(l_method, [$a_elem])
-            }
-            if ($a_elem.is('[data-onshow]')) {//Sempre q navegar até
-                evalCode($a_elem.data('onshow'), [$a_elem, a_page])
-            }
-
-            $a_elem.trigger(H.show, [$a_elem, a_page])
-        }
-        $('a').toggleClass('active', false)
-        $('.grecaptcha-badge').toggleClass('show', false)
-
-        var l_refresh_active = function () {
-            //Marca toda a arvore como active
-            $('.header a[href]').filter(function () {
-                var $that = $(this)
-                var l_href = $that.attr('href')
-                var l_page_regex = ''
-                for (var i in l_page) {
-                    l_page_regex += l_page[i] + '[/]?'
-                    if (l_href.match(new RegExp('^#[/]?' + l_page_regex + '$'))) {
-
-                        l_fn($that)
-
-                        return true
-                    }
-                }
-                return false
-            }).toggleClass('active', true)
-        }
-
-        var lCurrent = $('body').scrollTop()
-        let $elem = $('.section.' + l_page[0])
-        let $elems = $('.linked.' + l_page[0])
-        if ($elem.length === 0) {
-            return
-        }
-
-        if (l_options.style === 'scroll') {
-            var lNew = $elem.offset().top - l_menu_h
-            $('body, html').animate({
-                scrollTop: lNew
-            }, Math.max(500, Math.abs(lCurrent - lNew) / 10))
-        } else {
-            $('.linked').not($elems).hide()
-            $('.section').not($elem).not('.footer').hide()
-            $elem.show()
-            $elems.show()
-        }
-
-        if (($elem.hasClass('load') || $elem.is('[data-load]')) && !$elem.hasClass('loaded')) {
-            $elem.addClass('loaded')
-            $elem.html('<div class="spinner-border" role="status"></div>')
-            let load = $elem.data('load') || l_page[0]
-            let main_script = $elem.data('script')
-            let init_function = $elem.data('init')
-            H.rpc('Page', 'load', [load], async function (r) {
-                $elem.empty()
-                if (r) {
-                    $elem.html(r)
-                    if (main_script) {
-                        // if (main_script.match(/mjs$/)) {
-                        //     init_function = await import(main_script);
-                        //     init_function.default($elem);
-                        // } else {
-                        await H.loadAsset(main_script)
-                        evalCode(init_function, [$elem])
-                        // }
-                    }
-
-                    l_fn($elem)
-                    l_refresh_active()
-                }
-            })
-        } else {
-            l_fn($elem)
-            l_refresh_active()
-        }
-    }
-
-    /**
      * Create a form, from a server response
      *
      * @param a_param
      * @param a_options
      */
-    createForm (a_param, a_options) {
+    createForm(a_param, a_options) {
         let H = this
         a_options = a_options || {}
         a_options.onupdate = a_options.onupdate || function () {
@@ -863,7 +618,7 @@ const H = new class {
      * @param a_param
      * @param a_form_param
      */
-    createComponent (a_container, a_param, a_form_param) {
+    createComponent(a_container, a_param, a_form_param) {
         let H = this
         if (!window.g_component_id) window.g_component_id = 1
         var l_opts = a_param || {}
@@ -989,7 +744,7 @@ const H = new class {
             $form_group.on(H.formInit, function (e, a_values) {
                 const vueInstance = new Vue({
                     name: `${l_subtype}Root`,
-                    mounted () {
+                    mounted() {
                         if (l_opts.on) {
                             for (var i in l_opts.on) {
                                 if (!l_opts.on.hasOwnProperty(i)) continue
@@ -1009,17 +764,17 @@ const H = new class {
                         }
                     },
                     methods: {
-                        setProps (props) {
+                        setProps(props) {
                             if (this.$refs.c.hasOwnProperty('setProps')) {
                                 return this.$refs.c.setProps(props)
                             }
                         },
-                        getValue () {
+                        getValue() {
                             if (this.$refs.c.hasOwnProperty('getValue')) {
                                 return this.$refs.c.getValue()
                             }
                         },
-                        setValue (v) {
+                        setValue(v) {
                             if (this.$refs.c.hasOwnProperty('setValue')) {
                                 return this.$refs.c.setValue(v)
                             }
@@ -1439,7 +1194,7 @@ const H = new class {
      * @param a_items
      * @param a_selected_value
      */
-    createSelectOptions (a_component, a_items, a_selected_value) {
+    createSelectOptions(a_component, a_items, a_selected_value) {
         if (typeof a_selected_value === 'undefined' || !a_selected_value) {
             a_selected_value = a_component.val()
         }
@@ -1569,11 +1324,11 @@ const H = new class {
         }
     }
 
-    go (a_url) {
+    go(a_url) {
         document.location.href = a_url
     }
 
-    find (a_param) {
+    find(a_param) {
         if (typeof a_param === 'string') {
             if (a_param.match(/^#/)) {
                 a_param = $(a_param)
@@ -1584,7 +1339,7 @@ const H = new class {
         return a_param
     }
 
-    isValid (v) {
+    isValid(v) {
         switch (typeof v) {
             case 'undefined':
                 return false
@@ -1603,7 +1358,7 @@ const H = new class {
         }
     }
 
-    isTrue (v) {
+    isTrue(v) {
         if (this.isValid(v)) {
             if ((v + '').match(/^(off|no|false|n|f|0)$/i)) {
                 return false
@@ -1621,7 +1376,7 @@ const H = new class {
  * @param a_params
  * @returns {undefined}
  */
-export function evalCode (a_function_or_code, a_params) {
+export function evalCode(a_function_or_code, a_params) {
     try {
         if (typeof a_function_or_code === 'function') {
             a_function_or_code.apply(window, a_params)

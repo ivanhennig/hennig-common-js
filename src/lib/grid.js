@@ -4,14 +4,29 @@ import {activeFilter, newAction} from './templates'
 import {showError} from './notifications'
 
 /**
- * options
+ * # Options
  * - **container** jQuery element to render in
  * - **collectionObj** Class name to call
+ * - **search** Search obj to use as filter
+ * - **rowClick** Use row click as edit link
+ *
+ * ## Callback
+ * - ** confirmationMethod ** Will be fired before delete a row
+ *
+ * ## Form default is to call a redirect method
+ * - **modalAdd** Use modal for adding
+ * - **modalEdit** Use modal for adding
+ * - **customAdd** Function to call
+ * - **customEdit** Function to call
+ *
+ * ## Buttons
  * - **addLabel** String to use as button add text
- * - **customAdd** Function to call instead of builtin
  * - **noAddButton** Disables
  * - **noActiveFilter** Disables
- * - **rowClick** Use row click as edit link
+ *
+ * ## Custom fields
+ * - **formatters** Object of functions, must return HTML
+ * - **customMethods** Object of functions, work together to **formatters**
  *
  * @param {Object} options
  * @return {$}
@@ -19,6 +34,10 @@ import {showError} from './notifications'
 export function initGrid (options = {}) {
     bootgrid()
     options.container = options.container || $('[data-toggle="bootgrid"]')
+
+    if (!options.confirmationMethod) {
+        console.error('Please set a "confirmationMethod"')
+    }
 
     const collectionObj = options.collectionObj
     const rowClick = !!options.rowClick
@@ -79,7 +98,7 @@ export function initGrid (options = {}) {
                 customMethods.modalEdit = true
             }
 
-            handleEvents(evnt, this, collectionObj, customMethods, rowClick)
+            handleEvents(evnt, this, options)
         })
         .bootgrid({
             ajax: true,
@@ -197,7 +216,8 @@ function _edit (evnt, _id, grid, classname, custom) {
     }
 }
 
-export function handleEvents (evnt, grid, classname, custom = {}, rowClick) {
+export function handleEvents (evnt, grid, options = {}) {
+    const {collectionObj, customMethods, rowClick, confirmationMethod} = options
     let $grid = $(grid)
     const $tr = $grid.find('tbody tr')
     let longPress = 0
@@ -210,18 +230,16 @@ export function handleEvents (evnt, grid, classname, custom = {}, rowClick) {
         }
 
         let $that = $(evnt.target)
-
-
         let handled
         if ($that.is('.command')) {
             const _id = $that.data('row-id')
             if ($that.is('.edit')) {
                 handled = true
-                _edit(evnt, _id, grid, classname, custom)
+                _edit(evnt, _id, grid, collectionObj, customMethods)
             } else if ($that.is('.delete')) {
-                H.showQuery('Deseja deletar este registro?', function (a) {
+                confirmationMethod(function (a) {
                     if (!a) return
-                    H.rpc(classname, 'delete', [_id], function (r, e) {
+                    H.rpc(collectionObj, 'delete', [_id], function (r, e) {
                         if (r) {
                             $grid.bootgrid('reload')
                         }
@@ -231,16 +249,16 @@ export function handleEvents (evnt, grid, classname, custom = {}, rowClick) {
             } else if ($that.is('.checkbox')) {
                 let p = {_id}
                 p[$that.data('field')] = !$that.data('value')
-                H.rpc(classname, 'save', [p], function (r, e) {
+                H.rpc(collectionObj, 'save', [p], function (r, e) {
                     if (r) {
                         $grid.bootgrid('reload')
                     }
                 })
                 handled = true
             } else {
-                for (const name in custom) {
+                for (const name in customMethods) {
                     if ($that.hasClass(name)) {
-                        custom[name].apply(window, [_id, $that, $grid])
+                        customMethods[name].apply(window, [_id, $that, $grid])
                         handled = true
                     }
                 }
@@ -250,7 +268,7 @@ export function handleEvents (evnt, grid, classname, custom = {}, rowClick) {
         if (!handled && rowClick) {
             const rowid = $that.closest('[data-row-id]').data('row-id')
             const rows = $grid.bootgrid('getCurrentRows')
-            _edit(evnt, rows[rowid]._id, grid, classname, custom)
+            _edit(evnt, rows[rowid]._id, grid, collectionObj, customMethods)
         }
     })
 }
