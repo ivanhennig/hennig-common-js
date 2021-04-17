@@ -57,7 +57,6 @@ export function initGrid (options = {}) {
         options.customMethods[action.name] = action.handler
     }
 
-
     return options.container
         .on('initialized.rs.jquery.bootgrid', function () {
             const $grid = $(this)
@@ -151,7 +150,6 @@ export function initGrid (options = {}) {
                     return {current: 1, rows: [], rowCount: 0, total: 0}
                 }
             },
-            rowCount: [50, 200, 500],
             labels: {
                 all: 'Todos',
                 infos: 'Mostrando {{ctx.start}} a {{ctx.end}} de {{ctx.total}} registros.',
