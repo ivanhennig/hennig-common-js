@@ -36,6 +36,8 @@ import {showError} from './notifications'
  */
 export function initGrid (options = {}) {
     bootgrid()
+
+    options = { ...window.HDefaults, ...options }
     options.container = options.container || $('[data-toggle="bootgrid"]')
 
     if (!options.confirmationMethod) {
@@ -112,6 +114,7 @@ export function initGrid (options = {}) {
             handleEvents(evnt, this, options)
         })
         .bootgrid({
+            ...bootgridParams,
             ajax: true,
             url: `rpc/${collectionObj}/records`,
             requestHandler (request, elem) {
