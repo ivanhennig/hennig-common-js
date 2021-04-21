@@ -640,9 +640,8 @@ response = {
                     }
                 }
 
-                var status = row.status != null && that.options.statusMapping[row.status]
-                if (status) {
-                    rowCss += status
+                if (that.options.rowCss) {
+                    rowCss += that.options.rowCss.apply(that, [row])
                 }
 
                 $.each(that.columns, function (j, column) {

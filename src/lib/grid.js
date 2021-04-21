@@ -31,6 +31,9 @@ import {showError} from './notifications'
  * - **formatters** Object of functions, must return HTML
  * - **customMethods** Object of functions, work together to **formatters**
  *
+ * ## Bootgrid
+ * - **bootgridParams.rowCss(row)**
+ *
  * @param {Object} options
  * @return {$}
  */
@@ -65,7 +68,7 @@ export function initGrid (options = {}) {
             let $actionBar = $grid.prev().find('.actionBar')
             $actionBar.on('click', function (evnt) {
                 const $target = $(evnt.target).closest('.toolbar-action')
-
+                const activeFieldName = options.activeFieldName || 'active'
                 if ($target.is('.def')) {
                     if (options.modalAdd) {
                         H.rpc(collectionObj, 'form', [''], (r) => {
@@ -83,13 +86,13 @@ export function initGrid (options = {}) {
                         redirect({name: collectionObj})
                     }
                 } else if ($target.is('.activefilter1')) {
-                    defaultSearch.active = 1
+                    defaultSearch[activeFieldName] = 1
                     $grid.bootgrid('reload')
                 } else if ($target.is('.activefilter0')) {
-                    defaultSearch.active = 0
+                    defaultSearch[activeFieldName] = 0
                     $grid.bootgrid('reload')
                 } else if ($target.is('.activefilterAll')) {
-                    defaultSearch.active = undefined
+                    delete defaultSearch[activeFieldName]
                     $grid.bootgrid('reload')
                 }
             })
