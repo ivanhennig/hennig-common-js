@@ -1007,9 +1007,9 @@ const H = new class {
                 if ($target.is($form_group)) {
                     var l_value = a_values[l_name]
                     if (l_subtype === 'boolean') {
-                        if ((l_value + '').match(/1/)) {
+                        if (l_value === true || (l_value + '').match(/1/)) {
                             $form_control.val('1 ')
-                        } else if ((l_value + '').match(/0/)) {
+                        } else if (l_value === false || (l_value + '').match(/0/)) {
                             $form_control.val('0 ')
                         } else {
                             $form_control.val('')
