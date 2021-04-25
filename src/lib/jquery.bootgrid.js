@@ -1349,8 +1349,8 @@ response = {
             dropDownMenu: 'dropdown btn-group', // must be a unique class name or constellation of class names within the actionDropDown
             dropDownMenuItems: 'dropdown-menu pull-right', // must be a unique class name or constellation of class names within the actionDropDown
             dropDownMenuText: 'dropdown-text', // must be a unique class name or constellation of class names within the actionDropDown
-            footer: 'bootgrid-footer',
-            header: 'bootgrid-header',
+            footer: 'bootgrid-footer d-print-none',
+            header: 'bootgrid-header d-print-none',
             highlightResults: 'bootgrid-search-highlight',
             icon: 'icon la',
             iconColumns: 'la la-columns',

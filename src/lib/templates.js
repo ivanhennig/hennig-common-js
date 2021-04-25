@@ -21,16 +21,12 @@ export function activeFilter () {
 </div>`
 }
 
-// <div className="mr-3">
-//     <button
-//         type="button"
-//         className="btn btn-outline-secondary dropdown-toggle activefilter"
-//     >
-//         <i className="la la-eye"></i>
-//     </button>
-//     <div className="dropdown-menu">
-//         <span className="dropdown-item link activefilter10">Todos</span>
-//         <span className="dropdown-item link activefilter1">Somente ativos</span>
-//         <span className="dropdown-item link activefilter0">Somente cancelados</span>
-//     </div>
-// </div>
+export function printButton () {
+    return `<button
+    class="btn btn-outline-secondary toolbar-action print-action mr-1"
+    title="Imprimir"
+    type="button"
+>
+    <i class="la la-print"></i>
+</button>`
+}

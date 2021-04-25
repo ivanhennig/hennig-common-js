@@ -1,6 +1,6 @@
 import H, {evalCode} from './H'
 import bootgrid from './jquery.bootgrid'
-import {activeFilter, newAction} from './templates'
+import {activeFilter, newAction, printButton} from './templates'
 import {showError} from './notifications'
 
 /**
@@ -25,6 +25,7 @@ import {showError} from './notifications'
  * - **addLabel** String to use as button add text
  * - **noAddButton** Disables
  * - **noActiveFilter** Disables
+ * - **noPrint** Disables
  *
  * ## Custom fields
  * - **actions** Replace props below
@@ -85,6 +86,8 @@ export function initGrid (options = {}) {
                     } else {
                         redirect({name: collectionObj})
                     }
+                } else if ($target.is('.print-action')) {
+                    window.print()
                 } else if ($target.is('.activefilter1')) {
                     defaultSearch[activeFieldName] = 1
                     $grid.bootgrid('reload')
@@ -99,6 +102,10 @@ export function initGrid (options = {}) {
 
             if (!options.noActiveFilter) {
                 $actionBar.prepend($(activeFilter()))
+            }
+
+            if (!options.noPrint) {
+                $actionBar.prepend($(printButton()))
             }
 
             if (!options.noAddButton) {
