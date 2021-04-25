@@ -34,7 +34,7 @@ import {showError} from './notifications'
  *
  * ## Bootgrid
  * - **bootgridParams.rowCss(row)**
- * - **navigation**: 0 = none, 1 = show only header, 2 = show only footer, 3 = both
+ * - **bootgridParams.navigation**: 0 = none, 1 = show only header, 2 = show only footer, 3 = both
  *
  * @param {Object} options
  * @return {$}
