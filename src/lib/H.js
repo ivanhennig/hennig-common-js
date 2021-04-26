@@ -238,8 +238,12 @@ const H = new class {
             this.request = []
             const process_group = (r) => {
                 const responses = JSON.parse(r)
+                if (Array.isArray(responses)) {
                 for (const response of responses) {
                     grouped.shift().onresponse(response)
+                }
+                } else {
+                    grouped.shift().onresponse(responses)
                 }
             }
             if (this.jQuery && this.jQuery.ajax) {
