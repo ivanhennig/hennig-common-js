@@ -42,7 +42,7 @@ import {showError} from './notifications'
 export function initGrid (options = {}) {
     bootgrid()
 
-    options = { ...window.HDefaults, ...options }
+    options = $.extend(true, window.HDefaults, options)
     options.container = options.container || $('[data-toggle="bootgrid"]')
 
     if (!options.confirmationMethod) {
