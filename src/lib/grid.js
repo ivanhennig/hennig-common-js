@@ -253,7 +253,7 @@ export function handleEvents (evnt, grid, options = {}) {
             return
         }
 
-        let $that = $(evnt.target)
+        let $that = $(evnt.target).closest('td').find(':first')
         let handled
         if ($that.is('.command')) {
             const _id = $that.data('row-id')
@@ -286,6 +286,10 @@ export function handleEvents (evnt, grid, options = {}) {
                         handled = true
                     }
                 }
+            }
+
+            if ($that.is('.prevent-row-click')) {
+                handled = true
             }
         }
 
