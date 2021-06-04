@@ -5,6 +5,7 @@ import AutoNumeric from 'autonumeric'
 import Inputmask from 'inputmask'
 import moment from 'moment'
 import numeral from 'numeral'
+import 'numeral/locales/pt-br'
 
 const TYP_NUMBER = 'number'
 const TYP_TEXT = 'text'
