@@ -1,6 +1,6 @@
 import H, {evalCode} from './H'
 import bootgrid from './jquery.bootgrid'
-import {activeFilter, newAction, printButton} from './templates'
+import {activeFilter, newAction, printButton, exportButton} from './templates'
 import {showError} from './notifications'
 
 /**
@@ -26,6 +26,7 @@ import {showError} from './notifications'
  * - **noAddButton** Disables
  * - **noActiveFilter** Disables
  * - **noPrint** Disables
+ * - **useExport** Enable exporting feature
  *
  * ## Custom fields
  * - **actions** Replace props below
@@ -89,6 +90,12 @@ export function initGrid (options = {}) {
                     }
                 } else if ($target.is('.print-action')) {
                     window.print()
+                } else if ($target.is('.export-action')) {
+                    const search = _searchObj(defaultSearch, options, $grid)
+                    H.rpc(collectionObj, 'export', [search], link => {
+                        if (!link) return
+                        window.open(link)
+                    })
                 } else if ($target.is('.activefilter1')) {
                     defaultSearch[activeFieldName] = 1
                     $grid.bootgrid('reload')
@@ -107,6 +114,10 @@ export function initGrid (options = {}) {
 
             if (!options.noPrint) {
                 $actionBar.prepend($(printButton()))
+            }
+
+            if (options.useExport) {
+                $actionBar.prepend($(exportButton()))
             }
 
             if (!options.noAddButton) {
@@ -129,17 +140,7 @@ export function initGrid (options = {}) {
             ajax: true,
             url: `rpc/${collectionObj}/records`,
             requestHandler (request, elem) {
-                let customSearch = {}
-                if (options.search) {
-                    customSearch = options.search
-                    if (typeof customSearch === 'function') {
-                        customSearch = customSearch()
-                    }
-                } else {
-                    customSearch = $(elem).closest('div').find('.search-container').find('input, select').serializeObject()
-                }
-
-                request.search = {...defaultSearch, ...customSearch}
+                request.search = _searchObj(defaultSearch, options, elem)
                 return request
             },
             responseHandler (response) {
@@ -219,6 +220,20 @@ export function initGrid (options = {}) {
                 ...bootgridParams.formatters
             },
         })
+}
+
+function _searchObj (defaultSearch, options, elem) {
+    let customSearch = {}
+    if (options.search) {
+        customSearch = options.search
+        if (typeof customSearch === 'function') {
+            customSearch = customSearch()
+        }
+    } else if (elem) {
+        customSearch = $(elem).closest('div').find('.search-container').find('input, select').serializeObject()
+    }
+
+    return {...defaultSearch, ...customSearch}
 }
 
 function _edit (evnt, _id, grid, classname, custom) {

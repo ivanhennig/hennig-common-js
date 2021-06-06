@@ -30,3 +30,13 @@ export function printButton () {
     <i class="la la-print"></i>
 </button>`
 }
+
+export function exportButton () {
+    return `<button
+    class="btn btn-outline-secondary toolbar-action export-action mr-1"
+    title="Exportar"
+    type="button"
+>
+    <i class="la la-file-excel-o"></i>
+</button>`
+}
