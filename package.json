@@ -1,6 +1,6 @@
 {
   "name": "hennig-common",
-  "version": "1.0.47",
+  "version": "1.0.48",
   "description": "Common JS code for projects",
   "main": "index.js",
   "files": [

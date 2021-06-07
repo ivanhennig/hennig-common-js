@@ -669,43 +669,50 @@ const H = new class {
                         let l_data = Object.assign({}, a_form_param.data, H.serialize($form))
                         $button.find('>div').hide()
                         $button.find('.h-saving').show()
-                        H.rpc(a_form_param.rpc[0], a_form_param.rpc[1], [l_data], function (r, e) {
-                            setTimeout(() => {
-                                $button.find('>div').hide()
-                                $button.find('.h-def').show()
-                            }, 2000)
+                        if (a_form_param.rpc) {
+                            H.rpc(a_form_param.rpc[0], a_form_param.rpc[1], [l_data], function (r, e) {
+                                setTimeout(() => {
+                                    $button.find('>div').hide()
+                                    $button.find('.h-def').show()
+                                }, 2000)
 
-                            if (r) {
-                                $form.find('.form-group').trigger(H.clearValidation, [])
-                                H.unserialize($form, r.data)
-                                showInfo(r.message, () => {
-                                    $form.trigger(H.onstore, [r.data, $form])
-                                })
-                                $button.find('>div').hide()
-                                $button.find('.h-saved').show()
-                            }
-
-                            if (e) {
-                                $button.find('>div').hide()
-                                $button.find('.h-failed').show()
-
-                                if (e.data) {
-                                    $form.find('.form-group').trigger(H.setValidation, [e.data])
-                                    let message = []
-                                    for (const i in e.data) {
-                                        if (!$form.find('[name="' + i + '"]').not('[type="hidden"]').length) {
-                                            message.push(e.data[i].join('<br>'))
-                                        }
-                                    }
-
-                                    if (message.length) {
-                                        showError(message.join('<br>'))
-                                    }
-
-                                    return true
+                                if (r) {
+                                    $form.find('.form-group').trigger(H.clearValidation, [])
+                                    H.unserialize($form, r.data)
+                                    showInfo(r.message, () => {
+                                        $form.trigger(H.onstore, [r.data, $form])
+                                    })
+                                    $button.find('>div').hide()
+                                    $button.find('.h-saved').show()
                                 }
-                            }
-                        })
+
+                                if (e) {
+                                    $button.find('>div').hide()
+                                    $button.find('.h-failed').show()
+
+                                    if (e.data) {
+                                        $form.find('.form-group').trigger(H.setValidation, [e.data])
+                                        let message = []
+                                        for (const i in e.data) {
+                                            if (!$form.find('[name="' + i + '"]').not('[type="hidden"]').length) {
+                                                message.push(e.data[i].join('<br>'))
+                                            }
+                                        }
+
+                                        if (message.length) {
+                                            showError(message.join('<br>'))
+                                        }
+
+                                        return true
+                                    }
+                                }
+                            })
+                        } else {
+                          // Return object instead of call rpc
+                          $form.trigger(H.onstore, [l_data, $form])
+                          $button.find('>div').hide()
+                          $button.find('.h-saved').show()
+                        }
                     })
                 } else if (l_opts.default) {
                     $button.addClass('isDefault').on(H.defaultAction, function () {
