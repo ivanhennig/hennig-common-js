@@ -148,12 +148,14 @@ export default function () {
                     text: $this.text(),
                     align: data.align || 'left',
                     headerAlign: data.headerAlign || data.align || 'left',
+                    headerNoIcon: !!data.headerNoIcon,
                     cssClass: data.cssClass || '',
                     headerCssClass: data.headerCssClass || '',
                     formatter: that.options.formatters[data.formatter] || null,
                     order: (!sorted && (data.order === 'asc' || data.order === 'desc')) ? data.order : null,
                     searchable: !(data.searchable === false), // default: true
                     sortable: !!data.sortable,
+                    title: $this.attr('title') || $this.text(),
                     sortKey: data.sortKey || '',
                     sortRendered: data.sortRendered || false, // default: false
                     rows: data.derivedRows || [],
@@ -811,22 +813,32 @@ response = {
 
         $.each(this.columns, function (index, column) {
             if (column.visible) {
-                var sortOrder = that.sortDictionary[column.id],
-                    iconCss = ((sorting && sortOrder && sortOrder === 'asc') ? css.iconUp :
-                        (sorting && sortOrder && sortOrder === 'desc') ? css.iconDown : ''),
-                    icon = tpl.icon.resolve(getParams.call(that, {
-                        iconCss
-                    })),
-                    align = column.headerAlign,
-                    cssClass = (column.headerCssClass.length > 0) ? ' ' + column.headerCssClass : ''
-                html += tpl.headerCell.resolve(getParams.call(that, {
-                    column,
-                    icon,
-                    sortable: sorting && column.sortable && css.sortable || '',
-                    css: ((align === 'right') ? css.right : (align === 'center') ?
-                        css.center : css.left) + cssClass,
-                    style: (column.width == null) ? '' : 'width:' + column.width + ';'
+              var sortOrder = that.sortDictionary[column.id],
+                iconCss = ((sorting && sortOrder && sortOrder === 'asc') ? css.iconUp :
+                  (sorting && sortOrder && sortOrder === 'desc') ? css.iconDown : ''),
+                icon = tpl.icon.resolve(getParams.call(that, {
+                  iconCss
+                })),
+                align = column.headerAlign,
+                cssClass = (column.headerCssClass.length > 0) ? ' ' + column.headerCssClass : ''
+
+              if (column.headerNoIcon) {
+                html += tpl.simpleHeaderCell.resolve(getParams.call(that, {
+                  column,
+                  css: ((align === 'right') ? css.right : (align === 'center') ?
+                    css.center : css.left) + cssClass,
+                  style: (column.width == null) ? '' : 'width:' + column.width + ';'
                 }))
+              } else {
+                html += tpl.headerCell.resolve(getParams.call(that, {
+                  column,
+                  icon,
+                  sortable: sorting && column.sortable && css.sortable || '',
+                  css: ((align === 'right') ? css.right : (align === 'center') ?
+                    css.center : css.left) + cssClass,
+                  style: (column.width == null) ? '' : 'width:' + column.width + ';'
+                }))
+              }
             }
         })
 
@@ -1521,7 +1533,9 @@ response = {
                         </div>
                     </div>
                 </div>`,
-            headerCell: '<th data-column-id="{{ctx.column.id}}" class="{{ctx.css}}" style="{{ctx.style}}"><a href="javascript:void(0);" class="{{css.columnHeaderAnchor}} {{ctx.sortable}}"><span class="{{css.columnHeaderText}}">{{ctx.column.text}}</span>{{ctx.icon}}</a></th>',
+            headerCell: '<th data-column-id="{{ctx.column.id}}" class="{{ctx.css}}" style="{{ctx.style}}"><a href="javascript:void(0);" class="{{css.columnHeaderAnchor}} {{ctx.sortable}}"><span class="{{css.columnHeaderText}}" title="{{ctx.column.title}}">{{ctx.column.text}}</span>{{ctx.icon}}</a></th>',
+            simpleHeaderCell: '<th data-column-id="{{ctx.column.id}}" class="{{ctx.css}}" style="{{ctx.style}}"><span class="{{css.columnHeaderText}}" title="{{ctx.column.title}}">{{ctx.column.text}}</span></th>',
+            rawHeaderCell: '<th class="{{ctx.css}}">{{ctx.content}}</th>', // Used for the multi select box
             highlightResults: '<span class="{{css.highlightResults}}">{{ctx.content}}</span>',
             icon: '<span class="{{css.icon}} {{ctx.iconCss}}"></span>',
             infos: '<div class="{{css.infos}}">{{lbl.infos}}</div>',
@@ -1529,7 +1543,6 @@ response = {
             noResults: '<tr><td colspan="{{ctx.columns}}" class="no-results">{{lbl.noResults}}</td></tr>',
             pagination: '<div class="{{css.pagination}}"></div>',
             paginationItem: '<a data-page="{{ctx.page}}" class="{{ctx.css}} {{css.paginationButton}}">{{ctx.text}}</a>',
-            rawHeaderCell: '<th class="{{ctx.css}}">{{ctx.content}}</th>', // Used for the multi select box
             row: '<tr{{ctx.attr}}>{{ctx.cells}}</tr>',
             search: `<div class="{{css.search}}">
     <div class="input-group">
