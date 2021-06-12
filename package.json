@@ -1,6 +1,6 @@
 {
   "name": "hennig-common",
-  "version": "1.0.48",
+  "version": "1.0.49",
   "description": "Common JS code for projects",
   "main": "index.js",
   "files": [
@@ -15,7 +15,41 @@
     "inputmask": "^5.0.5",
     "jquery": "^3.5.1",
     "moment": "^2.29.1",
-    "numeral": "^2.0.6",
-    "vue": "^2.6.12"
+    "numeral": "^2.0.6"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "@vue/standard"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2020
+    },
+    "rules": {
+      "indent": [
+        "error",
+        2
+      ],
+      "vue/html-indent": [
+        "error",
+        2
+      ],
+      "vue/order-in-components": "error",
+      "curly": "error",
+      "camelcase": "off",
+      "no-debugger": "off",
+      "no-unused-vars": "off",
+      "no-prototype-builtins": "off",
+      "no-new": "off"
+    }
+  },
+  "devDependencies": {
+    "@vue/eslint-config-standard": "^6.0.0",
+    "eslint-plugin-standard": "^5.0.0",
+    "eslint-plugin-vue": "^7.11.0"
   }
 }
