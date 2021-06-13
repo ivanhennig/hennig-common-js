@@ -1,6 +1,6 @@
 {
   "name": "hennig-common",
-  "version": "1.0.51",
+  "version": "1.1.0",
   "description": "Common JS code for projects",
   "main": "index.js",
   "files": [
@@ -51,5 +51,8 @@
     "@vue/eslint-config-standard": "^6.0.0",
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-vue": "^7.11.0"
+  },
+  "dependencies": {
+    "@kyvg/vue3-notification": "^2.3.2"
   }
 }
