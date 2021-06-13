@@ -42,9 +42,6 @@ const H = new class {
     }
 
     this.init()
-    if (window.Vue) {
-      this.initVue(window.Vue)
-    }
     if (window.jQuery) {
       this.initJQuery(window.jQuery)
     }
@@ -53,10 +50,6 @@ const H = new class {
   setup (options) {
     options = options || {}
     this.prefix = options.prefix || ''
-
-    if (options.vue) {
-      this.initVue(options.vue)
-    }
   }
 
   init () {
@@ -67,13 +60,6 @@ const H = new class {
 
     this.initMoment()
     this.initNumeral()
-  }
-
-  initVue (Vue) {
-    this.Vue = Vue
-    this.Vue.filter('formatDateTime', (value) => {
-      return this.formatDatetime(value)
-    })
   }
 
   initJQuery (jQuery) {
@@ -1403,6 +1389,5 @@ export function evalCode (a_function_or_code, a_params) {
 
 H.init()
 H.initJQuery(jQuery)
-H.initVue(Vue)
 
 export default H
