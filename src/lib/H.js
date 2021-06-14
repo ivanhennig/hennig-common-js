@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import {createApp} from 'vue'
 import jQuery from 'jquery'
 import { showError, showInfo } from './notifications'
 import AutoNumeric from 'autonumeric'
@@ -721,7 +721,7 @@ const H = new class {
       $form_control = $(`<div><div ref="c" is="${l_subtype}"></div></div>`)
       $label = $(`<label for='${l_id}'>${l_title}</label>`)
       $form_group.on(H.formInit, function (e, a_values) {
-        const vueInstance = new Vue({
+        const vueInstance = createApp({
           name: `${l_subtype}Root`,
           mounted () {
             if (l_opts.on) {
