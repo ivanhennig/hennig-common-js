@@ -1,4 +1,4 @@
-import {createApp} from 'vue'
+import { createApp } from 'vue'
 import jQuery from 'jquery'
 import { showError, showInfo } from './notifications'
 import AutoNumeric from 'autonumeric'
@@ -100,11 +100,24 @@ const H = new class {
      * Init Moment and Tempus Dominus
      */
   initMoment () {
+    if (!window.g_locale) {
+      console.warn('window.g_locale must be set to use moment')
+      window.g_locale = 'pt-br'
+    }
+
     moment.locale(window.g_locale)
   }
 
   initNumeral () {
-    if (window.g_current_locale) return
+    if (window.g_current_locale) {
+      return
+    }
+
+    if (!window.g_locale) {
+      console.warn('window.g_locale must be set to use numeral')
+      window.g_locale = 'pt-br'
+    }
+
     numeral.locale(window.g_locale)
     window.g_current_locale = numeral.locales[window.g_locale]
   }
