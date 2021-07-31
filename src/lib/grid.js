@@ -11,6 +11,7 @@ import {showError} from './notifications'
  * - **collectionObj** Class name to call
  * - **search** Search obj to use as filter
  * - **rowClick** Use row click as edit link
+ * - **prefix** Used as base of RPC call
  *
  * ## Callback
  * - ** confirmationMethod ** Will be fired before delete a row
@@ -138,7 +139,7 @@ export function initGrid (options = {}) {
         .bootgrid({
             ...bootgridParams,
             ajax: true,
-            url: `rpc/${collectionObj}/records`,
+            url: `${options.prefix}rpc/${collectionObj}/records`,
             requestHandler (request, elem) {
                 request.search = _searchObj(defaultSearch, options, elem)
                 return request

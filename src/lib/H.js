@@ -22,7 +22,7 @@ const ST_EMAIL = 'email'
 const H = new class {
   constructor () {
     this.request = []
-    this.prefix = ''
+    this.prefix = window.HDefaults?.prefix || ''
     this.sessionStorageKey = 'H'
     this.show = 'H.show'
     this.onstore = 'H.onstore'
@@ -50,6 +50,10 @@ const H = new class {
     }
   }
 
+  /**
+   * @obsolete Use HDefaults
+   * @param options
+   */
   setup (options) {
     options = options || {}
     this.prefix = options.prefix || ''
