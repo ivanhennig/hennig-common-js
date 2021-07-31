@@ -22,7 +22,7 @@ const ST_EMAIL = 'email'
 const H = new class {
   constructor () {
     this.request = []
-    this.prefix = ''
+    this.prefix = window.HDefaults?.prefix || ''
     this.sessionStorageKey = 'H'
     this.show = 'H.show'
     this.onstore = 'H.onstore'
