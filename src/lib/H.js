@@ -757,8 +757,14 @@ const H = new class {
                 })
               }
             }
+
+            this.$refs.c.$on('input', () => $form_control.trigger('input'))
+            this.$refs.c.$on('change', () => $form_control.trigger('change'))
           },
           methods: {
+            getFormData () {
+              return H.serialize(l_container)
+            },
             setProps (props) {
               if (this.$refs.c.hasOwnProperty('setProps')) {
                 return this.$refs.c.setProps(props)
@@ -1102,6 +1108,12 @@ const H = new class {
           trigger: 'hover'
         })
     }
+
+    // Global change
+    $form_control.on('change input', function () {
+      //
+    })
+
     if (l_opts.on) {
       for (const i in l_opts.on) {
         if (!l_opts.on.hasOwnProperty(i)) continue
