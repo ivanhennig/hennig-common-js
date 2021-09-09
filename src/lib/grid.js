@@ -42,7 +42,7 @@ import { showError } from './notifications'
  * @return {$}
  */
 export function initGrid (options = {}) {
-  bootgrid()
+  if (!$.bootgrid) bootgrid()
 
   options = $.extend(true, { ...window.HDefaults }, options)
   options.container = options.container || $('[data-toggle="bootgrid"]')
@@ -53,7 +53,10 @@ export function initGrid (options = {}) {
 
   const collectionObj = options.collectionObj
   const rowClick = !!options.rowClick
-  const bootgridParams = options.bootgridParams || {}
+  let bootgridParams = window.HDefaults.bootgridParams()
+  if (options.bootgridParams) {
+    bootgridParams = { ...options.bootgridParams() }
+  }
   options.formatters = options.formatters || {}
   options.customMethods = options.customMethods || {}
   const defaultSearch = {}
