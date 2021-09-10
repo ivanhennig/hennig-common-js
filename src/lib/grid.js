@@ -137,6 +137,11 @@ export function initGrid (options = {}) {
         options.customMethods.modalEdit = true
       }
 
+      jQuery(this)
+        .find('.command.edit').tooltip({title: 'Editar este registro'}).end()
+        .find('.command.delete').tooltip({title: 'Deletar este registro'}).end()
+        .find('.command.checkbox').tooltip({title: 'Mudar o status'}).end()
+
       handleEvents(evnt, this, options)
     })
     .bootgrid({
@@ -180,8 +185,8 @@ export function initGrid (options = {}) {
       formatters: {
         'checkbox' (column, row) {
           return row[column.id] == 1
-            ? `<i class="command checkbox la la-check-circle link" title="${column.text}" data-row-id="${row._id}" data-field="${column.id}" data-value="${row[column.id]}"></i>`
-            : `<i class="command checkbox la la-circle link" title="${column.text}" data-row-id="${row._id}" data-field="${column.id}" data-value="${row[column.id]}"></i>`
+            ? `<i class="command checkbox la la-check-circle link" data-row-id="${row._id}" data-field="${column.id}" data-value="${row[column.id]}"></i>`
+            : `<i class="command checkbox la la-circle link" data-row-id="${row._id}" data-field="${column.id}" data-value="${row[column.id]}"></i>`
         },
         'upload' (column, row) {
           if (!row[column.id]) {
