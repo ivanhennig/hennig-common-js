@@ -64,7 +64,7 @@ export function initGrid (options = {}) {
   options.actions = options.actions || []
   for (const action of options.actions) {
     options.formatters[action.name] = (column, row) => {
-      return `<i class="command ${action.name} la ${action.icon}" data-row-id="${row._id}"></i>`
+      return `<i class="command ${action.name} la ${action.icon}" title="${action.title || ''}" data-row-id="${row._id}"></i>`
     }
     options.customMethods[action.name] = action.handler
   }
@@ -314,7 +314,10 @@ export function handleEvents (evnt, grid, options = {}) {
       } else {
         for (const name in customMethods) {
           if ($that.hasClass(name)) {
-            customMethods[name].apply(window, [_id, $that, $grid])
+            customMethods[name].apply(window, [_id, $that, $grid, () => {
+              const rows = $grid.bootgrid('getCurrentRows')
+              return rows[_id]
+            }])
             handled = true
           }
         }
