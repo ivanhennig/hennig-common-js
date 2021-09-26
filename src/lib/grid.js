@@ -138,9 +138,16 @@ export function initGrid (options = {}) {
       }
 
       jQuery(this)
-        .find('.command.edit').tooltip({title: 'Editar este registro'}).end()
-        .find('.command.delete').tooltip({title: 'Deletar este registro'}).end()
-        .find('.command.checkbox').tooltip({title: 'Mudar o status'}).end()
+        .find('.command.edit').popover({ content: 'Editar este registro', trigger: 'hover' }).end()
+        .find('.command.delete').popover({ content: 'Deletar este registro', trigger: 'hover' }).end()
+        .find('.command.checkbox').popover({ content: 'Mudar o status', trigger: 'hover' }).end()
+
+      jQuery(this).find('.command[title]').each((i, el) => {
+        const title = $(el).attr('title')
+        if (title) {
+          $(el).popover({ content: title, trigger: 'hover' })
+        }
+      })
 
       handleEvents(evnt, this, options)
     })
