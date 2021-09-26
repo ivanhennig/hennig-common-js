@@ -144,6 +144,7 @@ export function initGrid (options = {}) {
 
       jQuery(this).find('.command[title]').each((i, el) => {
         const title = $(el).attr('title')
+        $(el).removeAttr('title')
         if (title) {
           $(el).popover({ content: title, trigger: 'hover' })
         }
