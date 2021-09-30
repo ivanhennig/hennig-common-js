@@ -22,10 +22,7 @@ const ST_EMAIL = 'email'
 const H = new class {
   constructor () {
     this.request = []
-    this.prefix = ''
-    if (window.HDefaults) {
-      this.prefix = window.HDefaults.prefix || ''
-    }
+    this.prefix = null
     this.sessionStorageKey = 'H'
     this.show = 'H.show'
     this.onstore = 'H.onstore'
@@ -243,7 +240,8 @@ const H = new class {
       params: aparams
     }
 
-    const url = `${this.prefix}rpc/${aclass}/${amethod}`
+    const prefix = this.prefix ?? (window.HDefaults.prefix || '')
+    const url = `${prefix}rpc/${aclass}/${amethod}`
 
     this.request.push({
       ...payload,
@@ -270,7 +268,7 @@ const H = new class {
       if (this.jQuery && this.jQuery.ajax) {
         this.jQuery
           .ajax({
-            url: `${this.prefix}rpc/calls`,
+            url: `${prefix}rpc/calls`,
             type: 'POST',
             contentType: 'application/json',
             dataType: 'json',
@@ -291,7 +289,7 @@ const H = new class {
             l_stop = true
           })
       } else {
-        fetch(`${this.prefix}rpc/calls`,
+        fetch(`${prefix}rpc/calls`,
           {
             method: 'POST',
             headers: {
