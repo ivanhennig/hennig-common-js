@@ -222,7 +222,7 @@ const H = new class {
       params: aparams
     }
 
-    const prefix = this.prefix ?? (window.HDefaults.prefix || '')
+    const prefix = this.prefix || (window.HDefaults.prefix || '')
     const url = `${prefix}rpc/${aclass}/${amethod}`
 
     this.request.push({
