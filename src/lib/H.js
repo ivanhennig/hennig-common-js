@@ -149,6 +149,8 @@ const H = new class {
      * @param progresscb
      */
   rpc (aclass, amethod, aparams, acallback, progresscb) {
+    const headers = (window.HDefaults && window.HDefaults.headers && window.HDefaults.headers()) || {}
+
     const l_callback = acallback || function (r, e) {
       console.info(r)
       console.error(e)
@@ -223,7 +225,8 @@ const H = new class {
         $.ajax({
           url: '/rpc/progress',
           timeout: 10000,
-          async: true
+          async: true,
+          headers
         }).done(function (a_data, textStatus, xhr) {
           progresscb()
           if (l_stop) return
@@ -240,7 +243,7 @@ const H = new class {
       params: aparams
     }
 
-    const prefix = this.prefix ?? (window.HDefaults.prefix || '')
+    const prefix = this.prefix || (window.HDefaults.prefix || '')
     const url = `${prefix}rpc/${aclass}/${amethod}`
 
     this.request.push({
@@ -271,6 +274,7 @@ const H = new class {
             url: `${prefix}rpc/calls`,
             type: 'POST',
             contentType: 'application/json',
+            headers,
             dataType: 'json',
             data: grouped_str,
             processData: false,
@@ -293,7 +297,8 @@ const H = new class {
           {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json;charset=utf-8'
+              'Content-Type': 'application/json;charset=utf-8',
+              ...headers
             },
             body: grouped_str
           })
