@@ -28,7 +28,7 @@ export function setArr (vm, vueProp, key, values) {
     values = Object.values(values)
   }
 
-  vm.set(vueProp, key, values)
+  vm.$set(vueProp, key, values)
 }
 
 export function setObj (vm, o, values, extra = {}, whitelist = null) {
@@ -37,7 +37,7 @@ export function setObj (vm, o, values, extra = {}, whitelist = null) {
     if (whitelist === null || whitelist.includes(i)) {
       // eslint-disable-next-line no-prototype-builtins
       if (l_values.hasOwnProperty(i)) {
-        vm.set(o, i, l_values[i])
+        vm.$set(o, i, l_values[i])
       }
     }
   }
@@ -47,7 +47,7 @@ export function clearObj (o) {
   for (const i in o) {
     // eslint-disable-next-line no-prototype-builtins
     if (o.hasOwnProperty(i)) {
-      vm.set(o, i, null)
+      vm.$set(o, i, null)
       delete o[i]
     }
   }
