@@ -43,7 +43,7 @@ export function setObj (vm, o, values, extra = {}, whitelist = null) {
   }
 }
 
-export function clearObj (o) {
+export function clearObj (vm, o) {
   for (const i in o) {
     // eslint-disable-next-line no-prototype-builtins
     if (o.hasOwnProperty(i)) {
