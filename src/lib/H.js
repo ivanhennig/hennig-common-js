@@ -136,11 +136,18 @@ const H = new class {
      */
   rpc (aclass, amethod, aparams, acallback, progresscb) {
     const headers = (window.HDefaults && window.HDefaults.headers && window.HDefaults.headers()) || {}
+    const beforeCallback = (window.HDefaults && window.HDefaults.beforeCallback) || ''
 
-    const l_callback = acallback || function (r, e) {
-      console.info(r)
-      console.error(e)
+    const l_callback = (r, e) => {
+      if (beforeCallback) {
+        // If handled stop
+        if (beforeCallback(r, e) === true) {
+          return
+        }
+      }
+      acallback && acallback(r, e)
     }
+
     // if (!navigator.onLine) {
     //     l_callback(null, this.lang.offlineError);
     //     return;
