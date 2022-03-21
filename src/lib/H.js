@@ -18,6 +18,7 @@ const ST_DATETIME = 'datetime'
 const ST_DATE = 'date'
 const ST_TIME = 'time'
 const ST_EMAIL = 'email'
+const $ = jQuery
 
 const H = new class {
   constructor () {

@@ -1,4 +1,5 @@
 import H, { evalCode } from './H'
+import $ from 'jquery'
 import bootgrid from './jquery.bootgrid'
 import { activeFilter, newAction, printButton, exportButton } from './templates'
 import { showError } from './notifications'
@@ -68,7 +69,7 @@ export function initGrid (options = {}) {
     }
     options.customMethods[action.name] = action.handler
   }
-
+  const headers = (window.HDefaults && window.HDefaults.headers && window.HDefaults.headers()) || {}
   return options.container
     .on('initialized.rs.jquery.bootgrid', function () {
       const $grid = $(this)
@@ -154,6 +155,9 @@ export function initGrid (options = {}) {
     })
     .bootgrid({
       ...bootgridParams,
+      ajaxSettings: {
+        headers
+      },
       ajax: true,
       url: `${options.prefix}rpc/${collectionObj}/records`,
       requestHandler (request, elem) {
@@ -173,11 +177,26 @@ export function initGrid (options = {}) {
           }
         }
 
+        const beforeCallback = (window.HDefaults && window.HDefaults.beforeCallback) || ''
+
         if (response && response.result) {
+          if (beforeCallback) {
+            // If handled stop
+            if (beforeCallback(response.result, null) === true) {
+              return
+            }
+          }
           return response.result
         }
 
         if (response.error) {
+          if (beforeCallback) {
+            // If handled stop
+            if (beforeCallback(null, response.error) === true) {
+              return
+            }
+          }
+
           showError(response.error.message)
           return { current: 1, rows: [], rowCount: 0, total: 0 }
         }
