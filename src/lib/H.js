@@ -47,6 +47,10 @@ const H = new class {
     }
   }
 
+  /**
+   * @obsolete Use HDefaults
+   * @param options
+   */
   setup (options) {
     options = options || {}
     this.prefix = options.prefix || ''
@@ -1091,6 +1095,7 @@ const H = new class {
     // Common
     if (this.isTrue(l_opts.required)) {
       $form_control.attr('required', 'required')
+      $label.append('<sup>✱</sup>')
     }
     if (this.isTrue(l_opts.readonly)) {
       $form_control.attr('disabled', 'disabled')
