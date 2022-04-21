@@ -335,7 +335,9 @@ export function handleEvents (evnt, grid, options = {}) {
           if ($that.hasClass(name)) {
             customMethods[name].apply(window, [_id, $that, $grid, () => {
               const rows = $grid.bootgrid('getCurrentRows')
-              return rows[_id]
+              return rows.first(function (item) {
+                return item['_id'] === _id
+              })
             }])
             handled = true
           }
