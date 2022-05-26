@@ -97,7 +97,8 @@ export function initGrid (options = {}) {
           window.print()
         } else if ($target.is('.export-action')) {
           const search = _searchObj(defaultSearch, options, $grid)
-          H.rpc(collectionObj, 'export', [search], link => {
+          const searchPhrase = $grid.find('.search-field').val() || ''
+          H.rpc(collectionObj, 'export', [{ searchPhrase, search }], link => {
             if (!link) return
             window.open(link)
           })
