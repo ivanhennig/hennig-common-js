@@ -159,7 +159,20 @@ const H = new class {
     const headers = (window.HDefaults && window.HDefaults.headers && window.HDefaults.headers()) || {}
     const beforeCallback = (window.HDefaults && window.HDefaults.beforeCallback) || ''
 
+    let prefix = this.prefix || (window.HDefaults.prefix || '')
+    if (typeof prefix === 'function') {
+      prefix = prefix()
+    }
+    const url = `${prefix}rpc/${aclass}/${amethod}`
+
     const l_callback = (r, e) => {
+      if (e) {
+        e = {
+          ...e,
+          prefix
+        }
+      }
+
       if (beforeCallback) {
         // If handled stop
         if (beforeCallback(r, e) === true) {
@@ -257,12 +270,6 @@ const H = new class {
       params: aparams
     }
 
-    let prefix = this.prefix || (window.HDefaults.prefix || '')
-    if (typeof prefix === 'function') {
-      prefix = prefix()
-    }
-    const url = `${prefix}rpc/${aclass}/${amethod}`
-
     this.request.push({
       ...payload,
       onresponse (r) {
@@ -285,47 +292,31 @@ const H = new class {
           grouped.shift().onresponse(responses)
         }
       }
-      if (this.jQuery && this.jQuery.ajax) {
-        this.jQuery
-          .ajax({
-            url: `${prefix}rpc/calls`,
-            type: 'POST',
-            contentType: 'application/json',
-            headers,
-            dataType: 'json',
-            data: grouped_str,
-            processData: false,
-            async: true
-          })
-          .fail(function (xhr, textStatus, errorThrown) {
-            if (textStatus === 'parsererror') {
-              l_callback(null, { message: xhr.responseText })
-            } else {
-              l_callback(null, { message: errorThrown })
-            }
-            l_stop = true
-          })
-          .done(function (a_data, textStatus, xhr) {
-            process_group(xhr.responseText.substring(lastResponseLength))
-            l_stop = true
-          })
-      } else {
-        fetch(`${prefix}rpc/calls`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json;charset=utf-8',
-              ...headers
-            },
-            body: grouped_str
-          })
-          .then((r) => {
-            return r.json()
-          })
-          .then((r) => {
-            return process_group(r)
-          })
-      }
+
+      this.jQuery
+        .ajax({
+          url: `${prefix}rpc/calls`,
+          type: 'POST',
+          contentType: 'application/json',
+          headers,
+          dataType: 'json',
+          data: grouped_str,
+          processData: false,
+          timeout: 20000,
+          async: true
+        })
+        .fail(function (xhr, textStatus, errorThrown) {
+          if (textStatus === 'parsererror') {
+            l_callback(null, { message: xhr.responseText })
+          } else {
+            l_callback(null, { message: errorThrown })
+          }
+          l_stop = true
+        })
+        .done(function (a_data, textStatus, xhr) {
+          process_group(xhr.responseText.substring(lastResponseLength))
+          l_stop = true
+        })
     }, 200)
   }
 

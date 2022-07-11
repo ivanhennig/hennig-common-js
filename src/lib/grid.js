@@ -70,6 +70,12 @@ export function initGrid (options = {}) {
     options.customMethods[action.name] = action.handler
   }
   const headers = (window.HDefaults && window.HDefaults.headers && window.HDefaults.headers()) || {}
+
+  let prefix = options.prefix
+  if (typeof prefix === 'function') {
+    prefix = prefix()
+  }
+
   return options.container
     .on('initialized.rs.jquery.bootgrid', function () {
       const $grid = $(this)
@@ -160,7 +166,7 @@ export function initGrid (options = {}) {
         headers
       },
       ajax: true,
-      url: `${options.prefix}rpc/${collectionObj}/records`,
+      url: `${prefix}rpc/${collectionObj}/records`,
       requestHandler (request, elem) {
         request.search = _searchObj(defaultSearch, options, elem)
         return request
