@@ -13,11 +13,18 @@ const TYP_TEXTAREA = 'textarea'
 const TYP_DATETIME = 'datetime'
 const TYP_SELECT = 'select'
 const ST_INTEGER = 'integer'
+const ST_KEY = 'key'
 const ST_PASSWORD = 'password'
 const ST_DATETIME = 'datetime'
 const ST_DATE = 'date'
 const ST_TIME = 'time'
 const ST_EMAIL = 'email'
+
+function debugLog(...args) {
+  if (window.HDefaults && window.HDefaults.debug) {
+    console.log(...args)
+  }
+}
 
 const H = new class {
   constructor () {
@@ -105,7 +112,7 @@ const H = new class {
      */
   initMoment () {
     if (!window.g_locale) {
-      console.warn('window.g_locale must be set to use moment')
+      debugLog('window.g_locale must be set to use moment')
       window.g_locale = 'pt-br'
     }
 
@@ -118,7 +125,7 @@ const H = new class {
     }
 
     if (!window.g_locale) {
-      console.warn('window.g_locale must be set to use numeral')
+      debugLog('window.g_locale must be set to use numeral')
       window.g_locale = 'pt-br'
     }
 
@@ -138,7 +145,20 @@ const H = new class {
     const headers = (window.HDefaults && window.HDefaults.headers && window.HDefaults.headers()) || {}
     const beforeCallback = (window.HDefaults && window.HDefaults.beforeCallback) || ''
 
+    let prefix = this.prefix || (window.HDefaults.prefix || '')
+    if (typeof prefix === 'function') {
+      prefix = prefix()
+    }
+    const url = `${prefix}rpc/${aclass}/${amethod}`
+
     const l_callback = (r, e) => {
+      if (e) {
+        e = {
+          ...e,
+          prefix
+        }
+      }
+
       if (beforeCallback) {
         // If handled stop
         if (beforeCallback(r, e) === true) {
@@ -169,11 +189,11 @@ const H = new class {
 
       if ('error' in l_data && l_data.error) { // Server sent an error
         if (l_data.error.trace) {
-          console.warn(l_data.error.trace)
+          debugLog(l_data.error.trace)
         }
 
         if (l_data.error.message) {
-          console.error(aclass + '::' + amethod + '(' + JSON.stringify(aparams) + ')', l_data.error.message)
+          debugLog(aclass + '::' + amethod + '(' + JSON.stringify(aparams) + ')', l_data.error.message)
         }
 
         const errorShow = l_callback(null, l_data.error)
@@ -185,7 +205,7 @@ const H = new class {
       }
 
       if ('result' in l_data) { // Servidor enviando a resposta
-        console.log(aclass + '::' + amethod + '(' + JSON.stringify(aparams) + ')', l_data.result)
+        debugLog(aclass + '::' + amethod + '(' + JSON.stringify(aparams) + ')', l_data.result)
         l_callback(l_data.result, null)
       }
     }
@@ -236,9 +256,6 @@ const H = new class {
       params: aparams
     }
 
-    const prefix = this.prefix || (window.HDefaults.prefix || '')
-    const url = `${prefix}rpc/${aclass}/${amethod}`
-
     this.request.push({
       ...payload,
       onresponse (r) {
@@ -261,47 +278,31 @@ const H = new class {
           grouped.shift().onresponse(responses)
         }
       }
-      if (this.jQuery && this.jQuery.ajax) {
-        this.jQuery
-          .ajax({
-            url: `${prefix}rpc/calls`,
-            type: 'POST',
-            contentType: 'application/json',
-            headers,
-            dataType: 'json',
-            data: grouped_str,
-            processData: false,
-            async: true
-          })
-          .fail(function (xhr, textStatus, errorThrown) {
-            if (textStatus === 'parsererror') {
-              l_callback(null, { message: xhr.responseText })
-            } else {
-              l_callback(null, { message: errorThrown })
-            }
-            l_stop = true
-          })
-          .done(function (a_data, textStatus, xhr) {
-            process_group(xhr.responseText.substring(lastResponseLength))
-            l_stop = true
-          })
-      } else {
-        fetch(`${prefix}rpc/calls`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json;charset=utf-8',
-              ...headers
-            },
-            body: grouped_str
-          })
-          .then((r) => {
-            return r.json()
-          })
-          .then((r) => {
-            return process_group(r)
-          })
-      }
+
+      this.jQuery
+        .ajax({
+          url: `${prefix}rpc/calls`,
+          type: 'POST',
+          contentType: 'application/json',
+          headers,
+          dataType: 'json',
+          data: grouped_str,
+          processData: false,
+          timeout: 20000,
+          async: true
+        })
+        .fail(function (xhr, textStatus, errorThrown) {
+          if (textStatus === 'parsererror') {
+            l_callback(null, { message: xhr.responseText })
+          } else {
+            l_callback(null, { message: errorThrown })
+          }
+          l_stop = true
+        })
+        .done(function (a_data, textStatus, xhr) {
+          process_group(xhr.responseText.substring(lastResponseLength))
+          l_stop = true
+        })
     }, 200)
   }
 
@@ -312,8 +313,7 @@ const H = new class {
      */
   geoLocation (callback) {
     callback = callback || function (r, e) {
-      console.info(r)
-      console.error(e)
+      debugLog(r, e)
     }
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -502,7 +502,7 @@ const H = new class {
     $form.on(H.onstore, a_options.onstore)
     $form.on('keydown', (e) => {
       if (e.ctrlKey && e.keyCode === 13) {
-        console.log('Ctrl + Enter')
+        debugLog('Ctrl + Enter')
         $form.find('.btn').trigger(H.defaultAction)
       }
     })
@@ -832,6 +832,12 @@ const H = new class {
         $label.hide()
         $form_group.hide()
         $form_control.attr('type', 'hidden')
+      } else if (l_subtype === ST_KEY) {
+        $inputgroup_preaddon = $(`<div class="input-group-prepend"><div class="input-group-text"><i class="la la-link" aria-hidden="true"></i></div></div>`)
+        $inputgroup_addon = $('<div class="input-group-append"><div class="input-group-text"><i class="la la-copy link text-primary"></i></div></div>')
+        $inputgroup_addon.on('click', () => {
+          navigator.clipboard.writeText($form_control.val());
+        })
       } else if (l_subtype === ST_PASSWORD) {
         if (l_opts.empty) {
           $form_control.attr('placeholder', '')
@@ -1426,7 +1432,7 @@ export function evalCode (a_function_or_code, a_params) {
       eval(a_function_or_code)
     }).apply(window, a_params)
   } catch (ex) {
-    console.warn('evalCode:', ex.stack)
+    debugLog('evalCode:', ex.stack)
   }
 }
 
