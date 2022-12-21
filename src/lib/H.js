@@ -13,6 +13,7 @@ const TYP_TEXTAREA = 'textarea'
 const TYP_DATETIME = 'datetime'
 const TYP_SELECT = 'select'
 const ST_INTEGER = 'integer'
+const ST_KEY = 'key'
 const ST_PASSWORD = 'password'
 const ST_DATETIME = 'datetime'
 const ST_DATE = 'date'
@@ -846,6 +847,12 @@ const H = new class {
         $label.hide()
         $form_group.hide()
         $form_control.attr('type', 'hidden')
+      } else if (l_subtype === ST_KEY) {
+        $inputgroup_preaddon = $(`<div class="input-group-prepend"><div class="input-group-text"><i class="la la-link" aria-hidden="true"></i></div></div>`)
+        $inputgroup_addon = $('<div class="input-group-append"><div class="input-group-text"><i class="la la-copy link text-primary"></i></div></div>')
+        $inputgroup_addon.on('click', () => {
+          navigator.clipboard.writeText($form_control.val());
+        })
       } else if (l_subtype === ST_PASSWORD) {
         if (l_opts.empty) {
           $form_control.attr('placeholder', '')
