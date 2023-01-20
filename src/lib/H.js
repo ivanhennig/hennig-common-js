@@ -952,7 +952,8 @@ const H = new class {
             showClear: true,
             showClose: true
           },
-          useCurrent: false
+          useCurrent: 'day',
+          stepping: 10
         }
         if (l_subtype === ST_DATE) {
           $form_control.datetimepicker({
