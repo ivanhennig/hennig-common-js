@@ -331,7 +331,14 @@ export function handleEvents (evnt, grid, options = {}) {
     if (!handled && rowClick) {
       const rowid = $that.closest('[data-row-id]').data('row-id')
       const rows = $grid.bootgrid('getCurrentRows')
-      _edit(evnt, rows[rowid]._id, grid, collectionObj, customMethods)
+      const current_row_data = rows.first(function (item) {
+        return item['_id'] === rowid
+      })
+      if (typeof rowClick === 'function') {
+        rowClick(current_row_data)
+      } else {
+        _edit(evnt, current_row_data._id, grid, collectionObj, customMethods)
+      }
     }
   })
 }
