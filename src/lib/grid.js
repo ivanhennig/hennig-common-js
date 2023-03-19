@@ -1,4 +1,5 @@
 import H, { evalCode } from './H'
+import $ from 'jquery'
 import bootgrid from './jquery.bootgrid'
 import { activeFilter, newAction, printButton, exportButton } from './templates'
 import { showError } from './notifications'
@@ -68,6 +69,12 @@ export function initGrid (options = {}) {
     }
     options.customMethods[action.name] = action.handler
   }
+  const headers = (window.HDefaults && window.HDefaults.headers && window.HDefaults.headers()) || {}
+
+  let prefix = options.prefix
+  if (typeof prefix === 'function') {
+    prefix = prefix()
+  }
 
   return options.container
     .on('initialized.rs.jquery.bootgrid', function () {
@@ -96,7 +103,8 @@ export function initGrid (options = {}) {
           window.print()
         } else if ($target.is('.export-action')) {
           const search = _searchObj(defaultSearch, options, $grid)
-          H.rpc(collectionObj, 'export', [search], link => {
+          const searchPhrase = $grid.prev().find('.search-field').val() || ''
+          H.rpc(collectionObj, 'export', [{ searchPhrase, search }], link => {
             if (!link) return
             window.open(link)
           })
@@ -154,8 +162,11 @@ export function initGrid (options = {}) {
     })
     .bootgrid({
       ...bootgridParams,
+      ajaxSettings: {
+        headers
+      },
       ajax: true,
-      url: `${options.prefix}rpc/${collectionObj}/records`,
+      url: `${prefix}rpc/${collectionObj}/records`,
       requestHandler (request, elem) {
         request.search = _searchObj(defaultSearch, options, elem)
         return request
@@ -173,11 +184,26 @@ export function initGrid (options = {}) {
           }
         }
 
+        const beforeCallback = (window.HDefaults && window.HDefaults.beforeCallback) || ''
+
         if (response && response.result) {
+          if (beforeCallback) {
+            // If handled stop
+            if (beforeCallback(response.result, null) === true) {
+              return
+            }
+          }
           return response.result
         }
 
         if (response.error) {
+          if (beforeCallback) {
+            // If handled stop
+            if (beforeCallback(null, response.error) === true) {
+              return
+            }
+          }
+
           showError(response.error.message)
           return { current: 1, rows: [], rowCount: 0, total: 0 }
         }
@@ -316,7 +342,9 @@ export function handleEvents (evnt, grid, options = {}) {
           if ($that.hasClass(name)) {
             customMethods[name].apply(window, [_id, $that, $grid, () => {
               const rows = $grid.bootgrid('getCurrentRows')
-              return rows[_id]
+              return rows.first(function (item) {
+                return item['_id'] === _id
+              })
             }])
             handled = true
           }
