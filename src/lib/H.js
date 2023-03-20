@@ -7,6 +7,8 @@ import moment from 'moment'
 import numeral from 'numeral'
 import 'numeral/locales/pt-br'
 
+const $ = jQuery
+
 const TYP_NUMBER = 'number'
 const TYP_TEXT = 'text'
 const TYP_TEXTAREA = 'textarea'
@@ -1123,9 +1125,8 @@ const H = new class {
       $form_control.attr('title', l_opts.placeholder)
     }
     if (l_opts.help) {
-      $('<i class=\'la la-question-circle\'></i>')
-        .appendTo($label)
-        .popover({
+      const help_element = $('<i class=\'la la-question-circle\'></i>').appendTo($label)
+      new bootstrap.Popover(help_element[0], {
           content: l_opts.help,
           trigger: 'hover'
         })

@@ -145,16 +145,21 @@ export function initGrid (options = {}) {
         options.customMethods.modalEdit = true
       }
 
-      jQuery(this)
-        .find('.command.edit').popover({ content: 'Editar este registro', trigger: 'hover' }).end()
-        .find('.command.delete').popover({ content: 'Deletar este registro', trigger: 'hover' }).end()
-        .find('.command.checkbox').popover({ content: 'Mudar o status', trigger: 'hover' }).end()
+      jQuery(this).find('.command.edit').each((i, el) => {
+        new bootstrap.Popover(el, { content: 'Editar este registro', trigger: 'hover' })
+      })
+      jQuery(this).find('.command.delete').each((i, el) => {
+        new bootstrap.Popover(el, { content: 'Deletar este registro', trigger: 'hover' })
+      })
+      jQuery(this).find('.command.checkbox').each((i, el) => {
+        new bootstrap.Popover(el, { content: 'Mudar o status', trigger: 'hover' })
+      })
 
       jQuery(this).find('.command[title]').each((i, el) => {
         const title = $(el).attr('title')
         $(el).removeAttr('title')
         if (title) {
-          $(el).popover({ content: title, trigger: 'hover' })
+          new bootstrap.Popover(el, { content: title, trigger: 'hover' })
         }
       })
 
