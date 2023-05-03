@@ -542,7 +542,7 @@ const H = new class {
     if (a_param.buttons && a_param.buttons.length) {
       for (const i in a_param.buttons) {
         if (!a_param.buttons.hasOwnProperty(i)) continue
-        H.createComponent($card_footer, a_param.buttons[i], a_param)
+        H.createComponent($card_block, a_param.buttons[i], a_param, $card_footer)
       }
     }
 
@@ -580,47 +580,6 @@ const H = new class {
         })
     }
 
-    // if (a_param.type === 'grid') {
-    //     var l_grid
-    //     a_param.onLoad = function (event) {
-    //         //
-    //     }
-    //     a_param.onRequest = function (event) {
-    //         event.httpHeaders['X-CSRF-Token'] = g_csrf_token || ''
-    //         event.httpHeaders['X-Expecting'] = 'ajax-json-grid'
-    //     }
-    //     a_param.onAdd = function (event) {
-    //         ajax('./' + a_param.controller + '/create', {
-    //             'onstore' () {
-    //                 l_grid.reload()
-    //             }
-    //         })
-    //     }
-    //     a_param.onEdit = function (event) {
-    //         ajax('./' + a_param.controller + '/' + event.recid + '/edit', {
-    //             'onupdate' (r) {
-    //                 l_grid.reload()
-    //             }
-    //         })
-    //     }
-    //     for (var i in a_param.columns) {
-    //         var l_column = a_param.columns[i]
-    //         if (l_column.editable && l_column.editable.type === 'select') {
-    //             l_column.render = function (record, index, col_index) {
-    //                 var l_val = this.getCellValue(index, col_index)
-    //                 for (var ii in l_column.editable.items) {
-    //                     if (l_val == l_column.editable.items[ii].id) {
-    //                         return l_column.editable.items[ii].text || '-'
-    //                     }
-    //                 }
-    //                 return '-'
-    //             }
-    //         }
-    //     }
-    //     l_grid = $('<div class="grid_container"></div>').appendTo($card_block).w2grid(a_param)
-    //     //
-    // }
-
     if (a_param.data) {
       H.unserialize($form, a_param.data)
     }
@@ -635,7 +594,7 @@ const H = new class {
      * @param a_param
      * @param a_form_param
      */
-  createComponent (a_container, a_param, a_form_param) {
+  createComponent (a_container, a_param, a_form_param, $card_footer) {
     const H = this
     if (!window.g_component_id) window.g_component_id = 1
     const l_opts = a_param || {}
@@ -751,7 +710,12 @@ const H = new class {
           })
         }
       }
-      a_container.append($button)
+
+      if (l_opts.tabref) {
+        l_append($button)
+      } else {
+        $card_footer.append($button)
+      }
       return
     }
 
